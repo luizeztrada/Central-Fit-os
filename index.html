@@ -1,0 +1,2154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0f10">
+<link rel="manifest" href="/manifest.webmanifest?v=083">
+<link rel="apple-touch-icon" href="/cf-logo-180-v083.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/cf-logo-192-v083.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Central Fit OS">
+<title>Central Fit OS v1.6.1</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0d0f10;--card:#171a1c;--muted:#9ca3a8;--text:#f5f5f5;--accent:#b8ff35;--danger:#ff6262;--warn:#ffc857;--orange:#ff9f43}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.hidden{display:none!important}.app{max-width:980px;margin:auto;padding:18px 14px 95px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px}
+.logo{font-weight:900;font-size:22px}.logo span{color:var(--accent)}.top-actions{display:flex;gap:8px;align-items:center}
+button{border:0;border-radius:12px;padding:11px 14px;font-weight:750;cursor:pointer}.primary{background:var(--accent);color:#101010}.ghost{background:#24282b;color:white}.danger{background:#3a1d1d;color:#ff9b9b}
+.page{display:none}.page.active{display:block}.hero{background:linear-gradient(135deg,#1d231e,#151719);padding:20px;border-radius:20px;margin-bottom:14px}
+.hero h1{margin:0 0 5px;font-size:29px}.muted{color:var(--muted)}.small{font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}.stat{background:var(--card);padding:16px;border-radius:16px}.stat b{display:block;font-size:26px;margin-top:6px}
+.card{background:var(--card);padding:16px;border-radius:18px;margin:10px 0}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{padding:6px 9px;border-radius:999px;font-size:12px;font-weight:800}.ok{background:#203318;color:var(--accent)}.bad{background:#3a1d1d;color:#ff8e8e}.soon{background:#3a321c;color:var(--warn)}.urgent{background:#3f291b;color:var(--orange)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#151719;border-top:1px solid #292d30;display:flex;justify-content:center;gap:3px;padding:8px;z-index:8;overflow:auto}nav button{background:transparent;color:#aaa;padding:9px 11px;white-space:nowrap}nav button.active{color:var(--accent)}
+input,select,textarea{width:100%;padding:13px;margin:6px 0 10px;border-radius:12px;border:1px solid #303438;background:#101214;color:white;font-size:16px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/-1}.client{display:flex;justify-content:space-between;align-items:center;gap:10px}.actions{display:flex;gap:7px;flex-wrap:wrap}
+#gate{min-height:100vh;display:grid;place-items:center;padding:18px;background:radial-gradient(circle at top,#202820,#0d0f10 55%)}.box{width:min(480px,100%);background:#151819;padding:24px;border-radius:24px;border:1px solid #252b27}.box h1{margin:0 0 4px;font-size:30px}.brand{color:var(--accent);font-weight:900}.divider{height:1px;background:#2a2f31;margin:14px 0}
+.code{background:#0b0d0e;border:1px solid #2b3033;padding:12px;border-radius:12px;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:auto}
+.banner{padding:12px 14px;border-radius:14px;margin-bottom:12px;background:#20251f;border:1px solid #394033}.testrow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #292d30}.testrow:last-child{border-bottom:0}
+.datequick{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:8px 0 14px}
+.tabs button{white-space:nowrap}
+.money{font-size:30px;font-weight:900}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.profile-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.profile-name{font-size:30px;font-weight:900;margin:0}
+.metric-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:10px 0}
+.metric{background:#111416;border:1px solid #292d30;padding:14px;border-radius:14px}
+.metric b{display:block;font-size:22px;margin-top:4px}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:700px){.edit-grid{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr 1fr}}
+.note{padding:10px 12px;border-radius:12px;background:#111416;border:1px solid #2b3033}
+hr{border:0;border-top:1px solid #2a2f31;margin:16px 0}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.report-card{background:#111416;border:1px solid #292d30;padding:14px;border-radius:15px}
+.report-card .value{font-size:25px;font-weight:900;margin-top:5px}
+.delta{font-size:12px;margin-top:5px}
+.delta.up{color:var(--accent)}.delta.down{color:#ff8e8e}.delta.flat{color:var(--muted)}
+.barrow{display:grid;grid-template-columns:80px 1fr auto;gap:10px;align-items:center;margin:10px 0}
+.bartrack{height:10px;background:#24282b;border-radius:999px;overflow:hidden}
+.barfill{height:100%;background:var(--accent);border-radius:999px}
+@media(max-width:700px){.report-grid{grid-template-columns:repeat(2,1fr)}}
+.datequick button{padding:8px 12px;border-radius:999px;font-size:13px}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.top{align-items:flex-start}.top-actions{flex-wrap:wrap;justify-content:flex-end}}
+
+.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;background:#25292c;border:1px solid #34393d;flex:0 0 auto}
+.avatar-lg{width:112px;height:112px;border-radius:24px;object-fit:cover;background:#25292c;border:1px solid #34393d}
+.avatar-placeholder{display:grid;place-items:center;font-weight:900;color:#111;background:var(--accent)}
+.photo-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+
+.pair-card{background:linear-gradient(135deg,#171a22,#171a1c);border:1px solid #4f46e5}
+.pair-badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#27245a;color:#c7c3ff;font-size:12px;font-weight:900}
+.pair-people{display:flex;gap:14px;align-items:center;margin:12px 0}
+.pair-avatars{display:flex;align-items:center}
+.pair-avatars .avatar{margin-right:-12px;border:2px solid #171a22}
+.pair-code{font-size:12px;color:#b7b1ff;font-weight:800}
+
+.pair-subactions{margin-top:10px;padding-top:10px;border-top:1px solid #2b3040}
+.pair-total{font-weight:800;color:#f3f4f6}
+.pair-per{font-size:13px;color:#aaa}
+
+.danger-zone{border:1px solid #5b2525;background:#211515}
+.danger-zone .danger-title{color:#ff9b9b}
+
+.recovery-overlay{position:fixed;inset:0;background:#0b0d0e;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.recovery-box{width:min(520px,100%);background:#15191b;border:1px solid #303538;border-radius:24px;padding:24px}
+.recovery-box h2{margin-top:0}
+
+.dup-card{border:1px solid #7a641d;background:#2a2414}
+.dup-match{font-size:12px;color:#ffd76a;font-weight:800}
+</style>
+</head>
+<body>
+
+<section id="gate">
+<div class="box">
+<div class="small muted">CENTRAL FIT</div>
+<h1>Central Fit <span class="brand">OS</span></h1>
+<p class="muted">v1.6 · Recuperación y renovaciones</p>
+
+<div id="connectPanel">
+<div class="banner">
+  <b>Supabase configurado ✅</b>
+  <div class="small muted">La conexión ya viene integrada. Solo inicia sesión con tu correo y contraseña.</div>
+</div>
+</div>
+
+<div id="sqlPanel" class="card hidden">
+<b>SQL de Central Fit OS</b>
+<p class="small muted">Ejecuta este bloque una sola vez en Supabase SQL Editor.</p>
+<div class="code">create table if not exists public.clients (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  phone text,
+  plan text,
+  price numeric,
+  start_date date,
+  expires date,
+  notes text,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.payments (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  client_id bigint not null references public.clients(id) on delete cascade,
+  amount numeric not null,
+  method text,
+  payment_date date,
+  created_at timestamptz default now()
+);
+
+alter table public.clients enable row level security;
+alter table public.payments enable row level security;
+
+revoke all on table public.clients from anon, authenticated;
+revoke all on table public.payments from anon, authenticated;
+
+grant select, insert, update, delete on table public.clients to authenticated;
+grant select, insert, update, delete on table public.payments to authenticated;
+
+create policy "clients_select_own" on public.clients for select to authenticated using ((select auth.uid()) = owner_id);
+create policy "clients_insert_own" on public.clients for insert to authenticated with check ((select auth.uid()) = owner_id);
+create policy "clients_update_own" on public.clients for update to authenticated using ((select auth.uid()) = owner_id) with check ((select auth.uid()) = owner_id);
+create policy "clients_delete_own" on public.clients for delete to authenticated using ((select auth.uid()) = owner_id);
+
+create policy "payments_select_own" on public.payments for select to authenticated using ((select auth.uid()) = owner_id);
+create policy "payments_insert_own" on public.payments for insert to authenticated with check ((select auth.uid()) = owner_id);
+create policy "payments_update_own" on public.payments for update to authenticated using ((select auth.uid()) = owner_id) with check ((select auth.uid()) = owner_id);
+create policy "payments_delete_own" on public.payments for delete to authenticated using ((select auth.uid()) = owner_id);
+
+create index if not exists clients_owner_id_idx on public.clients(owner_id);
+create index if not exists payments_owner_id_idx on public.payments(owner_id);
+create index if not exists payments_client_id_idx on public.payments(client_id);</div>
+</div>
+
+<div class="divider"></div>
+
+<div id="authPanel">
+<h3>Administrador</h3><p class="muted">Inicia sesión para entrar a Central Fit OS.</p>
+<label>Correo</label><input id="email" type="email" placeholder="tu-correo@ejemplo.com">
+<label>Contraseña</label><input id="password" type="password" placeholder="Mínimo 8 caracteres">
+<div class="actions">
+<button class="primary" onclick="login()">Iniciar sesión</button>
+<button class="ghost" onclick="signup()">Crear primer administrador</button>
+</div>
+<div id="authMsg" class="small muted" style="margin-top:10px"></div>
+</div>
+
+<div class="divider"></div>
+<div id="testBox">
+<div class="testrow"><span>Conexión</span><span id="tConnect" class="pill soon">Pendiente</span></div>
+<div class="testrow"><span>Autenticación</span><span id="tAuth" class="pill soon">Pendiente</span></div>
+<div class="testrow"><span>Tabla clients</span><span id="tClients" class="pill soon">Pendiente</span></div>
+<div class="testrow"><span>Tabla payments</span><span id="tPayments" class="pill soon">Pendiente</span></div>
+</div>
+</div>
+</section>
+
+<div id="app" class="app hidden">
+<header class="top">
+<div><div class="logo">CENTRAL <span>FIT</span> OS</div><div class="small muted">v1.6 · Recuperación y renovaciones</div></div>
+<div class="top-actions"><button class="primary" onclick="show('add')">+ Cliente</button><button class="ghost" onclick="logout()">Salir</button></div>
+</header>
+
+<section id="home" class="page active">
+<div class="hero"><h1>Panel de control</h1><div class="muted" id="userLabel">Central Fit</div></div>
+<div class="grid">
+<div class="stat">👥 Activos<b id="active">0</b></div>
+<div class="stat">🔴 Vencidos<b id="expired">0</b></div>
+<div class="stat">🟡 7 días<b id="soon">0</b></div>
+<div class="stat">💰 Ingresos mes<b id="income">$0</b></div>
+<div class="stat">💸 Gastos mes<b id="monthExpenses">$0</b></div>
+<div class="stat">🆕 Nuevos<b id="newClients">0</b></div>
+<div class="stat">☁️ Estado<b id="cloudState">OK</b></div>
+<div class="stat">✅ Asistencias hoy<b id="todayAttendance">0</b></div>
+</div>
+<div class="card"><div class="row"><b>Próximos vencimientos</b><span class="muted">7 días</span></div><div id="upcoming"></div></div>
+</section>
+
+
+<section id="clientProfile" class="page">
+<div id="clientProfileContent"></div>
+</section>
+
+<section id="clients" class="page">
+<div class="row"><h2>Clientes</h2><input id="search" placeholder="Buscar..." oninput="renderClients()" style="max-width:220px"></div>
+<div id="clientList"></div>
+<div class="card" style="margin-top:18px">
+  <div class="row">
+    <div>
+      <b>Revisar posibles duplicados</b>
+      <div class="muted">Busca coincidencias por teléfono o nombre.</div>
+    </div>
+    <button class="ghost" onclick="renderDuplicateReview()">Revisar</button>
+  </div>
+  <div id="duplicateReviewList" style="margin-top:10px"></div>
+</div>
+</section>
+
+<section id="payments" class="page">
+<h2>Registrar pago</h2>
+<div class="card"><label>Cliente</label><select id="payClient" onchange="setSuggestedRenewalStart()"></select><div class="formgrid">
+<div><label>Monto</label><input id="payAmount" type="number" value="600"></div>
+<div><label>Método</label><select id="payMethod"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+<div class="full"><label>La nueva membresía comienza el</label><input id="payStartDate" type="date"><div class="datequick"><button type="button" class="ghost" onclick="setRenewalStartToday()">Hoy</button><button type="button" class="ghost" onclick="setRenewalStartAfterExpiry()">Después del vencimiento actual</button></div><div id="renewalPreview" class="small muted">El vencimiento se calculará desde esta fecha.</div></div>
+</div><button class="primary" onclick="addPayment()">Registrar pago y renovar</button></div>
+<div class="card"><b>Historial reciente</b><div id="paymentList"></div></div>
+</section>
+
+<section id="add" class="page">
+<h2>Nuevo cliente</h2>
+<div class="card"><div class="formgrid">
+<div class="full">
+<label>Foto del cliente</label>
+<div class="photo-row">
+  <div id="newPhotoAvatar" class="avatar-lg avatar-placeholder">CF</div>
+  <div>
+    <label class="filebtn">Elegir / tomar foto
+      <input id="newClientPhoto" type="file" accept="image/*" style="display:none" onchange="previewNewClientPhoto(event)">
+    </label>
+    <div class="small muted" style="margin-top:7px">Opcional. Se comprimirá antes de subir.</div>
+  </div>
+</div>
+</div>
+<div class="full"><label>Nombre</label><input id="name" placeholder="Nombre completo"></div>
+<div><label>Teléfono</label><input id="phone" placeholder="662..."></div>
+<div><label>Membresía</label><select id="plan" onchange="setPrice()"><option value="600">Mensual — $600</option><option value="550">Pareja — $550</option><option value="1500">Trimestral — $1,500</option><option value="250">Semana — $250</option><option value="80">Día — $80</option></select></div>
+<div><label>Precio</label><input id="price" type="number" value="600"></div>
+<div>
+<label>Fecha de inicio</label>
+<input id="start" type="date">
+<div class="datequick">
+  <button type="button" class="ghost" onclick="setStartOffset(-1)">Ayer</button>
+  <button type="button" class="ghost" onclick="setStartOffset(0)">Hoy</button>
+  <button type="button" class="ghost" onclick="setStartOffset(1)">Mañana</button>
+</div>
+<div class="small muted">Puedes elegir cualquier fecha pasada o futura.</div>
+</div>
+<div><label>Notas</label><input id="notes" placeholder="Opcional"></div>
+</div><button class="primary" onclick="addClient()">Guardar cliente</button> <button class="ghost" onclick="show('home')">Cancelar</button></div>
+</section>
+
+
+
+<section id="memberships" class="page">
+<h2>Control de membresías</h2>
+<div class="card">
+  <label>Cliente</label>
+  <select id="memClient" onchange="renderMembershipPanel()"></select>
+  <div id="membershipPanel"></div>
+</div>
+
+<div class="card">
+  <b>Modificar membresía</b>
+  <div class="formgrid">
+    <div>
+      <label>Plan</label>
+      <select id="memPlan" onchange="setMembershipPrice()">
+        <option value="Mensual|600">Mensual — $600</option>
+        <option value="Pareja|550">Pareja — $550</option>
+        <option value="Trimestral|1500">Trimestral — $1,500</option>
+        <option value="Semana|250">Semana — $250</option>
+        <option value="Día|80">Día — $80</option>
+      </select>
+    </div>
+    <div><label>Precio base</label><input id="memPrice" type="number" value="600"></div>
+    <div><label>Descuento fijo</label><input id="memDiscount" type="number" value="0"></div>
+    <div><label>Vincular pareja</label><select id="memLinked"><option value="">Sin vínculo</option></select></div>
+  </div>
+  <button class="primary" onclick="saveMembership()">Guardar cambios</button>
+</div>
+
+<div class="card">
+  <b>Ajustes de vigencia</b>
+  <div class="formgrid">
+    <div><label>Extender días</label><input id="extendDays" type="number" value="1" min="1"></div>
+    <div><label>Congelar días</label><input id="freezeDays" type="number" value="7" min="1"></div>
+  </div>
+  <div class="actions">
+    <button class="ghost" onclick="extendMembership()">+ Extender</button>
+    <button class="ghost" onclick="freezeMembership()">❄️ Congelar</button>
+    <button class="ghost" onclick="unfreezeMembership()">Reactivar</button>
+  </div>
+</div>
+
+<div class="card">
+  <b>Historial de movimientos</b>
+  <div id="membershipHistory"></div>
+</div>
+</section>
+
+<section id="attendance" class="page">
+<h2>Asistencia</h2>
+<div class="card">
+  <div class="formgrid">
+    <div>
+      <label>Fecha</label>
+      <input id="attDate" type="date">
+    </div>
+    <div>
+      <label>Horario</label>
+      <select id="attClass" onchange="renderAttendance()">
+        <option value="17:00">5:00 PM – 6:00 PM</option>
+        <option value="18:00">6:00 PM – 7:00 PM</option>
+        <option value="19:00">7:00 PM – 8:00 PM</option>
+        <option value="20:00">8:00 PM – 9:00 PM · Libre</option>
+        <option value="21:00">9:00 PM – 10:00 PM · Libre</option>
+      </select>
+    </div>
+  </div>
+  <label>Cliente</label>
+  <select id="attClient"></select>
+  <button class="primary" onclick="registerAttendance()">Registrar asistencia</button>
+</div>
+
+<div class="card">
+  <div class="row">
+    <b>Alumnos en esta clase</b>
+    <span id="classCapacity" class="pill ok">0 / 24</span>
+  </div>
+  <div id="attendanceList"></div>
+</div>
+</section>
+
+
+<section id="collections" class="page">
+<h2>Cobranza</h2>
+<div class="grid">
+  <div class="stat">1–7 días<b id="debt7">0</b></div>
+  <div class="stat">8–15 días<b id="debt15">0</b></div>
+  <div class="stat">16+ días<b id="debt16">0</b></div>
+  <div class="stat">Promesas hoy<b id="promiseToday">0</b></div>
+</div>
+<div class="card">
+  <div class="row"><b>Clientes vencidos</b><span class="muted">Seguimiento</span></div>
+  <div id="collectionList"></div>
+</div>
+</section>
+
+<section id="cash" class="page">
+<h2>Caja</h2>
+<div class="card">
+  <label>Mes</label>
+  <input id="cashMonth" type="month" onchange="renderCash()">
+</div>
+<div class="kpis">
+  <div class="stat">Ingresos<div id="cashIncome" class="money">$0</div></div>
+  <div class="stat">Gastos<div id="cashExpenses" class="money">$0</div></div>
+  <div class="stat">Neto<div id="cashNet" class="money">$0</div></div>
+  <div class="stat">Movimientos mes<div id="cashMoves" class="money">0</div></div>
+</div>
+<div class="card">
+  <b>Ingresos por método</b>
+  <div id="cashMethods"></div>
+</div>
+<div class="card">
+  <b>Ingresos del mes</b>
+  <div id="incomeList"></div>
+</div>
+<div class="card">
+  <b>Registrar gasto</b>
+  <div class="formgrid">
+    <div><label>Fecha del gasto</label><input id="expenseDate" type="date"></div>
+<div><label>Categoría</label>
+      <select id="expenseCategory">
+        <option>Servicios</option><option>Renta</option><option>Equipo</option>
+        <option>Limpieza</option><option>Publicidad</option><option>Mantenimiento</option><option>Otro</option>
+      </select>
+    </div>
+    <div><label>Monto</label><input id="expenseAmount" type="number" placeholder="0"></div>
+    <div><label>Método</label><select id="expenseMethod"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+    <div><label>Nota</label><input id="expenseNote" placeholder="Opcional"></div>
+  </div>
+  <button class="primary" onclick="addExpense()">Registrar gasto</button>
+</div>
+<div class="card">
+  <b>Gastos del mes</b>
+  <div id="expenseList"></div>
+</div>
+</section>
+
+
+<section id="reports" class="page">
+<h2>Reportes mensuales</h2>
+
+<div class="card">
+  <div class="formgrid">
+    <div>
+      <label>Mes del reporte</label>
+      <input id="reportMonth" type="month" onchange="renderReports()">
+    </div>
+    <div style="display:flex;align-items:end">
+      <div class="actions">
+        <button class="primary" onclick="exportReportCSV()">Exportar CSV</button>
+        <button class="ghost" onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="report-grid">
+  <div class="report-card">💰 Ingresos<div id="repIncome" class="value">$0</div><div id="repIncomeDelta" class="delta flat">—</div></div>
+  <div class="report-card">💸 Gastos<div id="repExpenses" class="value">$0</div><div id="repExpensesDelta" class="delta flat">—</div></div>
+  <div class="report-card">📈 Utilidad<div id="repNet" class="value">$0</div><div id="repNetDelta" class="delta flat">—</div></div>
+  <div class="report-card">🆕 Clientes nuevos<div id="repNewClients" class="value">0</div><div id="repNewDelta" class="delta flat">—</div></div>
+  <div class="report-card">🔁 Renovaciones<div id="repRenewals" class="value">0</div><div id="repRenewDelta" class="delta flat">—</div></div>
+  <div class="report-card">✅ Asistencias<div id="repAttendance" class="value">0</div><div id="repAttendanceDelta" class="delta flat">—</div></div>
+  <div class="report-card">👥 Activos al cierre<div id="repActiveEnd" class="value">0</div></div>
+  <div class="report-card">🔴 Inactivos al cierre<div id="repInactiveEnd" class="value">0</div></div>
+  <div class="report-card">💳 Ticket promedio<div id="repAvgTicket" class="value">$0</div></div>
+</div>
+
+<div class="card">
+  <b>Resumen del mes</b>
+  <div id="reportSummary" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <b>Ingresos por método</b>
+  <div id="reportPaymentMethods"></div>
+</div>
+
+<div class="card">
+  <b>Gastos por categoría</b>
+  <div id="reportExpenseCategories"></div>
+</div>
+
+<div class="card">
+  <b>Asistencia por horario</b>
+  <div id="reportAttendanceClasses"></div>
+</div>
+
+<div class="card">
+  <b>Últimos 6 meses</b>
+  <div class="small muted">Utilidad neta mensual</div>
+  <div id="reportTrend"></div>
+</div>
+</section>
+
+
+<section id="security" class="page">
+<h2>Seguridad y respaldos</h2>
+
+<div class="card">
+  <b>Estado de seguridad</b>
+  <div class="formgrid" style="margin-top:12px">
+    <div><span class="muted">Base de datos</span><div id="securityDbStatus" class="pill ok" style="display:inline-block;margin-top:8px">Conectada</div></div>
+    <div><span class="muted">Sesión</span><div id="securitySession" class="pill ok" style="display:inline-block;margin-top:8px">Activa</div></div>
+    <div><span class="muted">Usuario</span><div id="securityUser" style="margin-top:8px">—</div></div>
+    <div><span class="muted">Último respaldo</span><div id="lastBackupText" style="margin-top:8px">Nunca</div></div>
+  </div>
+  <div id="backupCounts" class="muted" style="margin-top:12px">—</div>
+</div>
+
+<div class="card">
+  <b>Descargar respaldo completo</b>
+  <p class="muted">Guarda clientes, pagos, asistencias, membresías, cobranza y gastos en un archivo JSON. Las fotos permanecen en Supabase Storage y el respaldo guarda su referencia.</p>
+  <button class="primary" onclick="downloadFullBackup()">Descargar respaldo</button>
+</div>
+
+<div class="card">
+  <b>Restaurar respaldo</b>
+  <p class="muted">Selecciona un respaldo creado por Central Fit OS.</p>
+  <input id="restoreFile" type="file" accept=".json,application/json" onchange="previewRestore(event)">
+  <div id="restorePreview" style="margin-top:12px"></div>
+  <button id="restoreBtn" class="danger hidden" onclick="restoreBackup()">Restaurar respaldo</button>
+</div>
+
+<div class="card">
+  <b>Recuperar contraseña</b>
+  <p class="muted">Envía un enlace de recuperación al correo del administrador.</p>
+  <input id="resetEmail" type="email" placeholder="correo@ejemplo.com">
+  <button class="ghost" onclick="sendPasswordReset()">Enviar enlace</button>
+</div>
+
+<div class="card">
+  <b>Recomendación</b>
+  <p class="muted">Haz un respaldo al menos una vez por semana y antes de cualquier cambio importante.</p>
+</div>
+</section>
+
+<section id="settings" class="page">
+<h2>Ajustes</h2>
+<div class="card"><b>Cuenta</b><p class="muted" id="accountInfo"></p></div>
+<div class="card"><b>Sincronización</b><p class="muted">Clientes y pagos se guardan directamente en Supabase.</p><button class="primary" onclick="loadCloudData()">Sincronizar ahora</button></div>
+<div class="card"><b>Diagnóstico</b><button class="ghost" onclick="returnToGate()">Probar conexión / ver SQL</button></div>
+<div class="card">
+  <b>Activar módulo de asistencia</b>
+  <p class="muted">Ejecuta este SQL una sola vez en Supabase para crear la tabla de asistencias.</p>
+  <div class="code">create table if not exists public.attendance (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  client_id bigint not null references public.clients(id) on delete cascade,
+  attendance_date date not null,
+  class_time text not null,
+  created_at timestamptz default now()
+);
+
+alter table public.attendance enable row level security;
+
+revoke all on table public.attendance from anon, authenticated;
+grant select, insert, update, delete on table public.attendance to authenticated;
+
+create policy "attendance_select_own"
+on public.attendance
+for select to authenticated
+using ((select auth.uid()) = owner_id);
+
+create policy "attendance_insert_own"
+on public.attendance
+for insert to authenticated
+with check ((select auth.uid()) = owner_id);
+
+create policy "attendance_update_own"
+on public.attendance
+for update to authenticated
+using ((select auth.uid()) = owner_id)
+with check ((select auth.uid()) = owner_id);
+
+create policy "attendance_delete_own"
+on public.attendance
+for delete to authenticated
+using ((select auth.uid()) = owner_id);
+
+create index if not exists attendance_owner_idx
+on public.attendance(owner_id);
+
+create index if not exists attendance_date_class_idx
+on public.attendance(attendance_date, class_time);</div>
+</div>
+
+
+<div class="card">
+  <b>Activar membresías, cobranza y caja</b>
+  <p class="muted">Ejecuta este SQL una sola vez en Supabase SQL Editor.</p>
+  <div class="code">alter table public.clients
+add column if not exists discount numeric default 0,
+add column if not exists frozen_until date,
+add column if not exists linked_client_id bigint references public.clients(id) on delete set null;
+
+create table if not exists public.membership_actions (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  client_id bigint not null references public.clients(id) on delete cascade,
+  action_type text not null,
+  detail text,
+  action_date date not null default current_date,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.collections (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  client_id bigint not null references public.clients(id) on delete cascade,
+  status text default 'pendiente',
+  last_contact_date date,
+  promise_date date,
+  notes text,
+  created_at timestamptz default now(),
+  unique(owner_id, client_id)
+);
+
+create table if not exists public.expenses (
+  id bigint primary key,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  category text not null,
+  amount numeric not null,
+  method text,
+  expense_date date not null,
+  notes text,
+  created_at timestamptz default now()
+);
+
+alter table public.membership_actions enable row level security;
+alter table public.collections enable row level security;
+alter table public.expenses enable row level security;
+
+revoke all on table public.membership_actions from anon, authenticated;
+revoke all on table public.collections from anon, authenticated;
+revoke all on table public.expenses from anon, authenticated;
+
+grant select, insert, update, delete on table public.membership_actions to authenticated;
+grant select, insert, update, delete on table public.collections to authenticated;
+grant select, insert, update, delete on table public.expenses to authenticated;
+
+create policy "membership_actions_own" on public.membership_actions
+for all to authenticated
+using ((select auth.uid()) = owner_id)
+with check ((select auth.uid()) = owner_id);
+
+create policy "collections_own" on public.collections
+for all to authenticated
+using ((select auth.uid()) = owner_id)
+with check ((select auth.uid()) = owner_id);
+
+create policy "expenses_own" on public.expenses
+for all to authenticated
+using ((select auth.uid()) = owner_id)
+with check ((select auth.uid()) = owner_id);
+
+create index if not exists membership_actions_client_idx
+on public.membership_actions(client_id);
+
+create index if not exists collections_client_idx
+on public.collections(client_id);
+
+create index if not exists expenses_date_idx
+on public.expenses(expense_date);</div>
+</div>
+
+
+<div class="card">
+  <b>Activar fotos de clientes</b>
+  <p class="muted">Ejecuta este SQL una sola vez en Supabase SQL Editor.</p>
+  <div class="code">alter table public.clients
+add column if not exists photo_path text;
+
+insert into storage.buckets (id, name, public)
+values ('client-photos', 'client-photos', false)
+on conflict (id) do update set public = false;
+
+drop policy if exists "client_photos_select_own" on storage.objects;
+drop policy if exists "client_photos_insert_own" on storage.objects;
+drop policy if exists "client_photos_update_own" on storage.objects;
+drop policy if exists "client_photos_delete_own" on storage.objects;
+
+create policy "client_photos_select_own"
+on storage.objects for select to authenticated
+using (
+  bucket_id = 'client-photos'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "client_photos_insert_own"
+on storage.objects for insert to authenticated
+with check (
+  bucket_id = 'client-photos'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "client_photos_update_own"
+on storage.objects for update to authenticated
+using (
+  bucket_id = 'client-photos'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+)
+with check (
+  bucket_id = 'client-photos'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);
+
+create policy "client_photos_delete_own"
+on storage.objects for delete to authenticated
+using (
+  bucket_id = 'client-photos'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+);</div>
+</div>
+
+</section>
+</div>
+
+<nav id="nav" class="hidden">
+<button onclick="show('home')" id="nhome" class="active">⌂ Inicio</button>
+<button onclick="show('clients')" id="nclients">👥 Clientes</button>
+<button onclick="show('payments')" id="npayments">💳 Pagos</button>
+<button onclick="show('memberships')" id="nmemberships">🎫 Membresías</button>
+<button onclick="show('collections')" id="ncollections">📲 Cobranza</button>
+<button onclick="show('cash')" id="ncash">💰 Caja</button>
+<button onclick="show('attendance')" id="nattendance">✅ Asistencia</button>
+<button onclick="show('reports')" id="nreports">📊 Reportes</button>
+<button onclick="show('security')" id="nsecurity">🔐 Seguridad</button>
+<button onclick="show('settings')" id="nsettings">⚙️ Ajustes</button>
+</nav>
+
+<script>
+const CLOUD='centralfit_os_cloud_v081';
+const DEFAULT_CLOUD={
+  url:'https://ihwbcghpfletfvkjuajj.supabase.co',
+  key:'sb_publishable_AvCKH3TYnxm58ZkNbhc1EQ_xMiu5-r2'
+};
+let cloud;
+try {
+  const saved=JSON.parse(localStorage.getItem(CLOUD)||'null');
+  cloud=(saved&&saved.url&&saved.key)?saved:DEFAULT_CLOUD;
+} catch(e) {
+  cloud=DEFAULT_CLOUD;
+}
+localStorage.setItem(CLOUD,JSON.stringify(cloud));
+let sb=null,user=null,db={clients:[],payments:[],attendance:[],membershipActions:[],collections:[],expenses:[]};
+const today=()=>new Date();
+function localISODate(){const d=new Date();const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+
+function setTest(id,state,msg){
+ const el=document.getElementById(id);el.textContent=msg;
+ el.className='pill '+(state==='ok'?'ok':state==='bad'?'bad':'soon');
+}
+let authEventsBound=false;
+function bindAuthEvents(){
+ if(!sb||authEventsBound)return;
+ authEventsBound=true;
+ sb.auth.onAuthStateChange((event,session)=>{
+   if(event==='PASSWORD_RECOVERY'){
+     user=session?.user||null;
+     showRecoveryPanel();
+   }
+ });
+}
+function showRecoveryPanel(){
+ const overlay=document.getElementById('recoveryOverlay');
+ if(overlay)overlay.classList.remove('hidden');
+}
+async function saveRecoveredPassword(){
+ const p1=document.getElementById('recoveryPassword').value;
+ const p2=document.getElementById('recoveryPassword2').value;
+ const msg=document.getElementById('recoveryMsg');
+ if(p1.length<8){msg.textContent='La contraseña debe tener al menos 8 caracteres.';return;}
+ if(p1!==p2){msg.textContent='Las contraseñas no coinciden.';return;}
+ msg.textContent='Guardando...';
+ const {error}=await sb.auth.updateUser({password:p1});
+ if(error){msg.textContent='No se pudo actualizar: '+error.message;return;}
+ msg.textContent='Contraseña actualizada ✅';
+ alert('Contraseña actualizada correctamente ✅');
+ document.getElementById('recoveryOverlay').classList.add('hidden');
+ await sb.auth.signOut();
+ user=null;
+ app.classList.add('hidden');nav.classList.add('hidden');gate.classList.remove('hidden');
+ document.getElementById('password').value='';
+}
+
+function init(){
+ cloud=DEFAULT_CLOUD;
+ localStorage.setItem(CLOUD,JSON.stringify(cloud));
+ if(cloud.url&&cloud.key)makeClient();
+}
+function makeClient(){
+ try{sb=window.supabase.createClient(cloud.url,cloud.key);bindAuthEvents();setTest('tConnect','ok','Configurado');return true}
+ catch(e){setTest('tConnect','bad','Error');return false}
+}
+function toggleSql(){sqlPanel.classList.toggle('hidden')}
+async function saveConnection(){
+ cloud=DEFAULT_CLOUD;
+ localStorage.setItem(CLOUD,JSON.stringify(cloud));
+ if(!makeClient())return;
+ await testConnection();
+}
+async function testConnection(){
+ if(!sb)return;
+ setTest('tConnect','soon','Probando...');
+ try{
+   const {data,error}=await sb.auth.getSession();
+   if(error)throw error;
+   setTest('tConnect','ok','Conectado');
+   if(data.session){user=data.session.user;setTest('tAuth','ok','Sesión activa');await testTables();}
+   else setTest('tAuth','soon','Sin sesión');
+ }catch(e){setTest('tConnect','bad','Error');authMsg.textContent=e.message||String(e)}
+}
+async function signup(){
+ if(!sb)return alert('Primero guarda la conexión de Supabase.');
+ if(!email.value||password.value.length<8)return alert('Usa un correo válido y una contraseña de al menos 8 caracteres.');
+ authMsg.textContent='Creando usuario...';
+ const {data,error}=await sb.auth.signUp({email:email.value.trim(),password:password.value,options:{data:{role:'central_fit_admin'}}});
+ if(error){authMsg.textContent='Error: '+error.message;return}
+ if(data.session){user=data.user;setTest('tAuth','ok','Creado');authMsg.textContent='Administrador creado y sesión iniciada.';await testTables();await boot();}
+ else{setTest('tAuth','soon','Confirma correo');authMsg.textContent='Usuario creado. Revisa tu correo y confirma la cuenta antes de iniciar sesión.';}
+}
+async function login(){
+ if(!sb)return alert('Primero guarda la conexión de Supabase.');
+ const {data,error}=await sb.auth.signInWithPassword({email:email.value.trim(),password:password.value});
+ if(error){setTest('tAuth','bad','Error');authMsg.textContent='No se pudo iniciar sesión: '+error.message;return}
+ user=data.user;setTest('tAuth','ok','Correcto');authMsg.textContent='Sesión iniciada.';await testTables();if(tClients.textContent==='OK'&&tPayments.textContent==='OK')await boot();
+}
+async function testTables(){
+ let a=await sb.from('clients').select('id').limit(1);
+ setTest('tClients',a.error?'bad':'ok',a.error?'Revisar SQL':'OK');
+ let b=await sb.from('payments').select('id').limit(1);
+ setTest('tPayments',b.error?'bad':'ok',b.error?'Revisar SQL':'OK');
+ if(a.error||b.error)authMsg.textContent='La cuenta funciona, pero faltan las tablas o permisos. Ejecuta el SQL mostrado arriba.';
+}
+async function boot(){
+ gate.classList.add('hidden');app.classList.remove('hidden');nav.classList.remove('hidden');
+ userLabel.textContent=user?.email||'Central Fit';accountInfo.textContent=user?.email||'';
+ await loadCloudData();
+}
+function returnToGate(){app.classList.add('hidden');nav.classList.add('hidden');gate.classList.remove('hidden');testConnection()}
+async function logout(){if(sb)await sb.auth.signOut();user=null;app.classList.add('hidden');nav.classList.add('hidden');gate.classList.remove('hidden');setTest('tAuth','soon','Sin sesión')}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));let n=document.getElementById('n'+id);if(n)n.classList.add('active');if(id==='add')document.getElementById('start').value=localISODate();
+ if(id==='payments'){setSuggestedRenewalStart();}
+ if(id==='attendance'){
+   const el=document.getElementById('attDate');
+   if(el && !el.value) el.value=localISODate();
+   fillAttendanceClients();
+   renderAttendance();
+ }
+ if(id==='memberships'){fillMembershipClients();renderMembershipPanel();}
+ if(id==='collections'){renderCollections();}
+ if(id==='cash'){
+   const m=document.getElementById('cashMonth');
+   const e=document.getElementById('expenseDate');
+   const now=new Date();
+   const month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+   const day=month+'-'+String(now.getDate()).padStart(2,'0');
+   if(m && !m.value)m.value=month;
+   if(e && !e.value)e.value=day;
+   renderCash();
+ }
+ if(id==='security')renderSecurity();
+ if(id==='reports'){
+   const r=document.getElementById('reportMonth');
+   const now=new Date();
+   const month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+   if(r && !r.value)r.value=month;
+   renderReports();
+ }
+}
+function fmt(d){return new Date(d+'T12:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function daysTo(d){return Math.ceil((new Date(d+'T12:00:00')-today())/86400000)}
+function status(c){
+ const todayISO=localISODate();
+ if(c.frozenUntil && c.frozenUntil>=todayISO) return 'frozen';
+ let n=daysTo(c.expires);
+ return n<0?'expired':n<=3?'urgent':n<=7?'soon':'active';
+}
+function planDays(plan){return plan==='Trimestral'?90:plan==='Semana'?7:plan==='Día'?1:30}
+function addDaysISO(iso,days){
+ const [y,m,d]=iso.split('-').map(Number);
+ const dt=new Date(Date.UTC(y,m-1,d));
+ dt.setUTCDate(dt.getUTCDate()+days);
+ return dt.toISOString().slice(0,10);
+}
+function setPrice(){document.getElementById('price').value=document.getElementById('plan').value}
+function setStartOffset(days){
+  const d=new Date();
+  d.setHours(12,0,0,0);
+  d.setDate(d.getDate()+days);
+  document.getElementById('start').value=d.toISOString().slice(0,10);
+}
+async function loadCloudData(){
+ if(!sb||!user)return;
+ cloudState.textContent='Sync...';
+ let [cr,pr,ar,mr,cor,er]=await Promise.all([
+   sb.from('clients').select('*').order('name'),
+   sb.from('payments').select('*').order('payment_date',{ascending:false}),
+   sb.from('attendance').select('*').order('attendance_date',{ascending:false}),
+   sb.from('membership_actions').select('*').order('created_at',{ascending:false}),
+   sb.from('collections').select('*'),
+   sb.from('expenses').select('*').order('expense_date',{ascending:false})
+ ]);
+ if(cr.error||pr.error){
+   cloudState.textContent='Error';
+   alert('Error al sincronizar: '+(cr.error?.message||pr.error?.message));
+   return;
+ }
+ db.clients=(cr.data||[]).map(c=>({
+   id:Number(c.id),name:c.name,phone:c.phone||'',plan:c.plan,price:Number(c.price||0),
+   start:c.start_date,expires:c.expires,notes:c.notes||'',discount:Number(c.discount||0),
+   frozenUntil:c.frozen_until||'',linkedClientId:c.linked_client_id?Number(c.linked_client_id):null,photoPath:c.photo_path||''
+ }));
+ db.payments=(pr.data||[]).map(p=>({id:Number(p.id),client:Number(p.client_id),amount:Number(p.amount||0),method:p.method||'',date:p.payment_date}));
+ db.attendance=ar.error?[]:(ar.data||[]).map(a=>({id:Number(a.id),client:Number(a.client_id),date:a.attendance_date,time:a.class_time}));
+ db.membershipActions=mr.error?[]:(mr.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),type:x.action_type,detail:x.detail||'',date:x.action_date}));
+ db.collections=cor.error?[]:(cor.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),status:x.status||'pendiente',lastContact:x.last_contact_date||'',promiseDate:x.promise_date||'',notes:x.notes||''}));
+ db.expenses=er.error?[]:(er.data||[]).map(x=>({id:Number(x.id),category:x.category,amount:Number(x.amount||0),method:x.method||'',date:x.expense_date,notes:x.notes||''}));
+ cloudState.textContent='OK';
+ refresh();
+ if(currentProfileClientId)renderClientProfile();
+}
+async function addClient(){
+ const nameEl=document.getElementById('name');
+ const phoneEl=document.getElementById('phone');
+ const planEl=document.getElementById('plan');
+ const priceEl=document.getElementById('price');
+ const startEl=document.getElementById('start');
+ const notesEl=document.getElementById('notes');
+ if(!nameEl.value.trim()||!startEl.value)return alert('Completa nombre e inicio.');
+ if(!sb||!user)return alert('La sesión no está activa. Vuelve a iniciar sesión.');
+
+ const duplicateMatches=findPotentialDuplicates(nameEl.value.trim(),phoneEl.value.trim());
+ if(duplicateMatches.length){
+   const detail=duplicateMessage(duplicateMatches);
+   const createAnyway=confirm(
+     `⚠️ Posible cliente duplicado\n\n${detail}\n\n`+
+     `Cancelar = abrir el cliente existente y NO crear otro.\n`+
+     `Aceptar = crear un duplicado de todos modos.`
+   );
+   if(!createAnyway){
+     const first=duplicateMatches[0]?.client;
+     if(first)openClientProfile(first.id);
+     return;
+   }
+ }
+ const planName=planEl.options[planEl.selectedIndex].text.split(' — ')[0];
+ const id=Date.now();
+ const expires=addDaysISO(startEl.value,planDays(planName));
+ const priceVal=Number(priceEl.value||0);
+ const {error}=await sb.from('clients').insert({
+   id,
+   owner_id:user.id,
+   name:nameEl.value.trim(),
+   phone:phoneEl.value.trim(),
+   plan:planName,
+   price:priceVal,
+   start_date:startEl.value,
+   expires,
+   notes:notesEl.value.trim()
+ });
+ if(error)return alert('No se pudo guardar cliente: '+error.message);
+ const {error:pe}=await sb.from('payments').insert({
+   id:id+1,
+   owner_id:user.id,
+   client_id:id,
+   amount:priceVal,
+   method:'Registro',
+   payment_date:startEl.value
+ });
+ if(pe)return alert('Cliente guardado, pero falló el pago inicial: '+pe.message);
+ if(selectedNewClientPhoto){
+   try{
+     const photoPath=await uploadClientPhoto(id,selectedNewClientPhoto,'');
+     const {error:photoDbError}=await sb.from('clients').update({photo_path:photoPath}).eq('id',id);
+     if(photoDbError)throw photoDbError;
+   }catch(photoErr){alert('Cliente guardado, pero la foto no se pudo subir: '+photoErr.message);}
+ }
+ selectedNewClientPhoto=null;
+ const photoInput=document.getElementById('newClientPhoto'); if(photoInput)photoInput.value='';
+ const newAvatar=document.getElementById('newPhotoAvatar'); if(newAvatar){newAvatar.className='avatar-lg avatar-placeholder';newAvatar.removeAttribute('style');newAvatar.textContent='CF';}
+ nameEl.value='';
+ phoneEl.value='';
+ notesEl.value='';
+ await loadCloudData();
+ show('clients');
+ alert('Cliente guardado correctamente ✅');
+}
+function setSuggestedRenewalStart(){
+ const c=db.clients.find(x=>x.id==document.getElementById('payClient')?.value);
+ const el=document.getElementById('payStartDate');
+ if(!c||!el)return;
+ const todayISO=localISODate();
+ el.value=(c.expires>=todayISO)?addDaysISO(c.expires,1):todayISO;
+ updateRenewalPreview();
+}
+function setRenewalStartToday(){
+ const el=document.getElementById('payStartDate');if(el)el.value=localISODate();updateRenewalPreview();
+}
+function setRenewalStartAfterExpiry(){
+ const c=db.clients.find(x=>x.id==document.getElementById('payClient')?.value);
+ if(!c)return;
+ document.getElementById('payStartDate').value=addDaysISO(c.expires,1);
+ updateRenewalPreview();
+}
+function updateRenewalPreview(){
+ const c=db.clients.find(x=>x.id==document.getElementById('payClient')?.value);
+ const start=document.getElementById('payStartDate')?.value;
+ const box=document.getElementById('renewalPreview');
+ if(!c||!start||!box)return;
+ const exp=addDaysISO(start,planDays(c.plan)-1);
+ box.textContent=`Vigencia: ${fmt(start)} al ${fmt(exp)} (${c.plan}).`;
+}
+
+async function addPayment(){
+ let c=db.clients.find(x=>x.id==document.getElementById('payClient').value);
+ if(!c)return alert('Agrega un cliente primero.');
+ const startDate=document.getElementById('payStartDate').value||localISODate();
+ const newExp=addDaysISO(startDate,planDays(c.plan)-1);
+ const amount=Number(document.getElementById('payAmount').value||0);
+ const method=document.getElementById('payMethod').value;
+
+ const {error:ue}=await sb.from('clients').update({expires:newExp}).eq('id',c.id);
+ if(ue)return alert('No se pudo actualizar vencimiento: '+ue.message);
+
+ const {error:pe}=await sb.from('payments').insert({
+   id:Date.now(),owner_id:user.id,client_id:c.id,amount,method,payment_date:localISODate()
+ });
+ if(pe)return alert('No se pudo registrar pago: '+pe.message);
+
+ try{await logMembershipAction(c.id,'Renovación',`Vigencia ${startDate} a ${newExp} · pago $${amount} · ${method}`);}catch(e){}
+ await loadCloudData();
+ alert(`Pago registrado ✅\nNueva vigencia: ${fmt(startDate)} al ${fmt(newExp)}`);
+}
+
+
+
+let currentProfileClientId=null;
+
+function clientTotalPaid(id){
+ return db.payments.filter(p=>p.client===id).reduce((s,p)=>s+p.amount,0);
+}
+function clientAttendanceCount(id){
+ return db.attendance.filter(a=>a.client===id).length;
+}
+function clientLastPayment(id){
+ return db.payments.filter(p=>p.client===id).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+}
+
+function openClientProfile(id){
+ currentProfileClientId=id;
+ renderClientProfile();
+ show('clientProfile');
+}
+
+function renderClientProfile(){
+ const c=db.clients.find(x=>x.id===currentProfileClientId);
+ const box=document.getElementById('clientProfileContent');
+ if(!c||!box)return;
+
+ const st=status(c);
+ const statusLabel=st==='active'?'Activo':st==='frozen'?'Congelada':st==='expired'?'Vencido':'Próximo a vencer';
+ const statusClass=st==='active'?'ok':st==='frozen'?'soon':st==='expired'?'bad':'soon';
+ const total=clientTotalPaid(c.id);
+ const att=clientAttendanceCount(c.id);
+ const last=clientLastPayment(c.id);
+ const effective=Math.max(0,c.price-(c.discount||0));
+ const linked=db.clients.find(x=>x.id===c.linkedClientId);
+
+ const pays=db.payments.filter(p=>p.client===c.id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+ const attendance=db.attendance.filter(a=>a.client===c.id).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+ const actions=db.membershipActions.filter(a=>a.client===c.id).slice(0,30);
+
+ box.innerHTML=`
+ <div class="profile-head">
+   <div class="photo-row">
+     ${c.photoPath?`<img class="avatar-lg" data-photo-path="${escapeAttr(c.photoPath)}" alt="${escapeAttr(c.name)}">`:`<div class="avatar-lg avatar-placeholder">${escapeAttr(initials(c.name))}</div>`}
+     <div>
+       <div class="small muted">CLIENTE</div>
+       <h2 class="profile-name">${c.name}</h2>
+       <div class="muted">${c.phone||'Sin teléfono'}</div>
+       <div class="actions" style="margin-top:10px">
+         <label class="filebtn">Cambiar foto<input type="file" accept="image/*" style="display:none" onchange="changeProfilePhoto(event)"></label>
+         ${c.photoPath?`<button class="ghost" onclick="removeClientPhoto(${c.id})">Quitar foto</button>`:''}
+       </div>
+     </div>
+   </div>
+   <span class="pill ${statusClass}">${statusLabel}</span>
+ </div>
+
+ <div class="metric-row">
+   <div class="metric">Total pagado<b>$${total.toLocaleString('es-MX')}</b></div>
+   <div class="metric">Asistencias<b>${att}</b></div>
+   <div class="metric">Plan actual<b style="font-size:17px">${c.plan}</b></div>
+   <div class="metric">Cobro actual<b>$${effective.toLocaleString('es-MX')}</b></div>
+ </div>
+
+ <div class="card">
+   <div class="row"><b>Membresía actual</b><button class="ghost" onclick="toggleClientEdit()">Editar</button></div>
+   <div class="formgrid" style="margin-top:12px">
+     <div><b>Inicio</b><div class="muted">${fmt(c.start)}</div></div>
+     <div><b>Vencimiento</b><div class="muted">${fmt(c.expires)}</div></div>
+     <div><b>Precio base</b><div class="muted">$${c.price}</div></div>
+     <div><b>Descuento</b><div class="muted">$${c.discount||0}</div></div>
+     <div><b>Último pago</b><div class="muted">${last?fmt(last.date)+' · $'+last.amount:'—'}</div></div>
+     <div><b>Pareja vinculada</b><div class="muted">${linked?.name||'—'}</div></div>
+   </div>
+   <div style="margin-top:12px"><b>Notas</b><div class="muted">${c.notes||'—'}</div></div>
+   <div class="actions" style="margin-top:14px">
+     ${isPairLinked(c)?`<button class="primary" onclick="renewPair(${c.id})">👥 Renovar pareja</button>`:`<button class="primary" onclick="quickPay(${c.id})">💳 Registrar pago</button>`}
+     <button class="ghost" onclick="wa(${c.id})">WhatsApp</button>
+     <button class="ghost" onclick="showMembership(${c.id})">Membresía</button>
+   </div>
+ </div>
+
+ <div id="clientEditBox" class="card hidden">
+   <b>Editar cliente</b>
+   <div class="edit-grid" style="margin-top:10px">
+     <div><label>Nombre</label><input id="editName" value="${escapeAttr(c.name)}"></div>
+     <div><label>Teléfono</label><input id="editPhone" value="${escapeAttr(c.phone||'')}"></div>
+     <div><label>Plan</label>
+       <select id="editPlan">
+         ${['Mensual','Pareja','Trimestral','Semana','Día'].map(p=>`<option ${p===c.plan?'selected':''}>${p}</option>`).join('')}
+       </select>
+     </div>
+     <div><label>Precio</label><input id="editPrice" type="number" value="${c.price}"></div>
+     <div><label>Fecha de inicio</label><input id="editStart" type="date" value="${c.start}"></div>
+     <div><label>Vencimiento</label><input id="editExpires" type="date" value="${c.expires}"></div>
+     <div><label>Descuento</label><input id="editDiscount" type="number" value="${c.discount||0}"></div>
+     <div><label>Notas</label><input id="editNotes" value="${escapeAttr(c.notes||'')}"></div>
+   </div>
+   <div class="actions">
+     <button class="primary" onclick="saveClientEdit()">Guardar cambios</button>
+     <button class="ghost" onclick="toggleClientEdit()">Cancelar</button>
+   </div>
+ </div>
+
+ 
+<div class="card danger-zone">
+  <b class="danger-title">Eliminar cliente</b>
+  <p class="muted">Esta opción elimina definitivamente al cliente y los registros relacionados. Para evitar accidentes, la app pedirá dos confirmaciones.</p>
+  <button class="danger" onclick="deleteClientForever(${c.id})">Eliminar cliente definitivamente</button>
+</div>
+
+<h3>Historial de pagos</h3>
+ ${pays.map(p=>`<div class="card"><div class="row"><div><b>${fmt(p.date)}</b><div class="muted">${p.method}</div></div><b>$${p.amount.toLocaleString('es-MX')}</b></div></div>`).join('')||'<div class="card muted">Sin pagos.</div>'}
+
+ <h3>Historial de asistencia</h3>
+ ${attendance.map(a=>`<div class="card"><div class="row"><b>${fmt(a.date)}</b><span class="muted">${a.time}</span></div></div>`).join('')||'<div class="card muted">Sin asistencias.</div>'}
+
+ <h3>Movimientos de membresía</h3>
+ ${actions.map(a=>`<div class="card"><div class="row"><b>${a.type}</b><span class="muted">${fmt(a.date)}</span></div><div class="muted">${a.detail}</div></div>`).join('')||'<div class="card muted">Sin movimientos.</div>'}
+ `;
+ hydratePhotoImages(box);
+}
+
+function escapeAttr(s){
+ return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleClientEdit(){
+ const box=document.getElementById('clientEditBox');
+ if(box)box.classList.toggle('hidden');
+}
+
+async function saveClientEdit(){
+ const c=db.clients.find(x=>x.id===currentProfileClientId);
+ if(!c)return;
+ const payload={
+   name:document.getElementById('editName').value.trim(),
+   phone:document.getElementById('editPhone').value.trim(),
+   plan:document.getElementById('editPlan').value,
+   price:Number(document.getElementById('editPrice').value||0),
+   start_date:document.getElementById('editStart').value,
+   expires:document.getElementById('editExpires').value,
+   discount:Number(document.getElementById('editDiscount').value||0),
+   notes:document.getElementById('editNotes').value.trim()
+ };
+ if(!payload.name||!payload.start_date||!payload.expires)return alert('Nombre, inicio y vencimiento son obligatorios.');
+ const {error}=await sb.from('clients').update(payload).eq('id',c.id);
+ if(error)return alert('No se pudo actualizar el cliente: '+error.message);
+ await logMembershipAction(c.id,'Edición de cliente','Datos del cliente actualizados');
+ await loadCloudData();
+ renderClientProfile();
+ alert('Cliente actualizado ✅');
+}
+
+function selectedMembershipClient(){
+ return db.clients.find(c=>c.id===Number(document.getElementById('memClient')?.value));
+}
+function setMembershipPrice(){
+ const [plan,price]=document.getElementById('memPlan').value.split('|');
+ document.getElementById('memPrice').value=price;
+}
+function fillMembershipClients(){
+ const sel=document.getElementById('memClient');
+ const linked=document.getElementById('memLinked');
+ if(!sel||!linked)return;
+ const current=sel.value;
+ sel.innerHTML=db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+ if(current)sel.value=current;
+ const id=Number(sel.value);
+ linked.innerHTML='<option value="">Sin vínculo</option>'+db.clients.filter(c=>c.id!==id).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+function renderMembershipPanel(){
+ const c=selectedMembershipClient();
+ const box=document.getElementById('membershipPanel');
+ if(!c||!box)return;
+ const effective=Math.max(0,c.price-(c.discount||0));
+ const linked=db.clients.find(x=>x.id===c.linkedClientId);
+ const frozen=status(c)==='frozen';
+ const pairInfo=(c.plan==='Pareja'&&linked)?`<div class="note" style="margin-top:10px"><span class="pair-badge">👥 ${pairCode(c)}</span><div style="margin-top:6px"><b>${c.name} + ${linked.name}</b></div><div class="muted">Renovación conjunta disponible.</div></div>`:'';
+ box.innerHTML=`<div class="note" style="margin-top:12px">
+   <div class="row"><b>${c.name}</b><span class="pill ${frozen?'soon':status(c)==='expired'?'bad':'ok'}">${frozen?'Congelada':status(c)==='expired'?'Vencida':'Vigente'}</span></div>
+   <div class="muted">Plan: ${c.plan} · Base $${c.price} · Descuento $${c.discount||0}</div>
+   <div class="muted">Cobro sugerido: $${effective}</div>
+   <div class="muted">Vence: ${fmt(c.expires)}${frozen?' · congelada hasta '+fmt(c.frozenUntil):''}</div>
+   <div class="muted">Pareja vinculada: ${linked?.name||'—'}</div>${linked?`<div class="muted">Total pareja: $${(pairEffectivePrice(c)+pairEffectivePrice(linked)).toLocaleString('es-MX')}</div>`:''}
+ </div>${pairInfo}`;
+
+ const planOpt=[...document.getElementById('memPlan').options].find(o=>o.value.startsWith(c.plan+'|'));
+ if(planOpt)document.getElementById('memPlan').value=planOpt.value;
+ document.getElementById('memPrice').value=c.price;
+ document.getElementById('memDiscount').value=c.discount||0;
+ document.getElementById('memLinked').value=c.linkedClientId||'';
+ renderMembershipHistory();
+}
+async function logMembershipAction(clientId,type,detail){
+ await sb.from('membership_actions').insert({
+   id:Date.now()+Math.floor(Math.random()*999),
+   owner_id:user.id,client_id:clientId,action_type:type,detail,
+   action_date:localISODate()
+ });
+}
+async function saveMembership(){
+ const c=selectedMembershipClient();if(!c)return;
+ const [planName]=document.getElementById('memPlan').value.split('|');
+ const price=Number(document.getElementById('memPrice').value||0);
+ const discount=Number(document.getElementById('memDiscount').value||0);
+ const linkedVal=document.getElementById('memLinked').value;
+ const linked=linkedVal?Number(linkedVal):null;
+ const {error}=await sb.from('clients').update({plan:planName,price,discount,linked_client_id:linked}).eq('id',c.id);
+ if(error)return alert('No se pudo actualizar: '+error.message);
+ if(planName==='Pareja'&&linked){
+   const partner=db.clients.find(x=>x.id===linked);
+   const sharedExp=partner?(c.expires>partner.expires?c.expires:partner.expires):c.expires;
+   const {error:pe}=await sb.from('clients').update({plan:'Pareja',linked_client_id:c.id,expires:sharedExp}).eq('id',linked);
+   if(pe)return alert('Se guardó la membresía, pero no se pudo vincular a la pareja: '+pe.message);
+   await sb.from('clients').update({expires:sharedExp}).eq('id',c.id);
+ }
+ await logMembershipAction(c.id,'Cambio','Plan '+planName+', precio $'+price+', descuento $'+discount);
+ await loadCloudData();renderMembershipPanel();alert('Membresía actualizada ✅');
+}
+async function extendMembership(){
+ const c=selectedMembershipClient();if(!c)return;
+ const days=Math.max(1,Number(document.getElementById('extendDays').value||1));
+ const newExp=addDaysISO(c.expires,days);
+ const {error}=await sb.from('clients').update({expires:newExp}).eq('id',c.id);
+ if(error)return alert(error.message);
+ await logMembershipAction(c.id,'Extensión','+'+days+' días');
+ await loadCloudData();renderMembershipPanel();
+}
+async function freezeMembership(){
+ const c=selectedMembershipClient();if(!c)return;
+ const days=Math.max(1,Number(document.getElementById('freezeDays').value||7));
+ const todayISO=localISODate();
+ const frozenUntil=addDaysISO(todayISO,days);
+ const newExp=addDaysISO(c.expires,days);
+ const {error}=await sb.from('clients').update({frozen_until:frozenUntil,expires:newExp}).eq('id',c.id);
+ if(error)return alert(error.message);
+ await logMembershipAction(c.id,'Congelación',days+' días; nuevo vencimiento '+newExp);
+ await loadCloudData();renderMembershipPanel();
+}
+async function unfreezeMembership(){
+ const c=selectedMembershipClient();if(!c)return;
+ const {error}=await sb.from('clients').update({frozen_until:null}).eq('id',c.id);
+ if(error)return alert(error.message);
+ await logMembershipAction(c.id,'Reactivación','Membresía reactivada');
+ await loadCloudData();renderMembershipPanel();
+}
+function renderMembershipHistory(){
+ const c=selectedMembershipClient(),box=document.getElementById('membershipHistory');
+ if(!c||!box)return;
+ const rows=db.membershipActions.filter(x=>x.client===c.id).slice(0,20);
+ box.innerHTML=rows.map(x=>`<div class="card"><div class="row"><b>${x.type}</b><span class="muted">${fmt(x.date)}</span></div><div class="muted">${x.detail}</div></div>`).join('')||'<p class="muted">Sin movimientos todavía.</p>';
+}
+
+function overdueDays(c){return Math.max(0,-daysTo(c.expires));}
+function collectionRecord(clientId){return db.collections.find(x=>x.client===clientId);}
+async function saveCollection(clientId,fields){
+ const existing=collectionRecord(clientId);
+ const payload={owner_id:user.id,client_id:clientId,...fields};
+ let res;
+ if(existing)res=await sb.from('collections').update(fields).eq('id',existing.id);
+ else res=await sb.from('collections').insert({id:Date.now()+Math.floor(Math.random()*999),...payload});
+ if(res.error)return alert('No se pudo guardar seguimiento: '+res.error.message);
+ await loadCloudData();
+}
+async function markContacted(clientId){
+ await saveCollection(clientId,{status:'contactado',last_contact_date:localISODate()});
+ renderCollections();
+}
+async function setPromise(clientId){
+ const date=prompt('Fecha de promesa de pago (AAAA-MM-DD):',localISODate());
+ if(!date)return;
+ await saveCollection(clientId,{status:'promesa',promise_date:date,last_contact_date:localISODate()});
+ renderCollections();
+}
+function collectionWA(clientId){
+ const c=db.clients.find(x=>x.id===clientId);if(!c)return;
+ let digits=(c.phone||'').replace(/\D/g,'');if(digits.length===10)digits='52'+digits;
+ const d=overdueDays(c);
+ const msg=`Hola ${c.name} 👋 Te contactamos de Central Fit para recordarte que tu membresía venció el ${fmt(c.expires)} (${d} día${d===1?'':'s'}). Cuando gustes podemos realizar tu renovación para que continúes entrenando con nosotros. 💪`;
+ location.href='https://wa.me/'+digits+'?text='+encodeURIComponent(msg);
+}
+function renderCollections(){
+ const box=document.getElementById('collectionList');if(!box)return;
+ const overdue=db.clients.filter(c=>status(c)==='expired').sort((a,b)=>b.expires.localeCompare(a.expires));
+ document.getElementById('debt7').textContent=overdue.filter(c=>overdueDays(c)<=7).length;
+ document.getElementById('debt15').textContent=overdue.filter(c=>overdueDays(c)>=8&&overdueDays(c)<=15).length;
+ document.getElementById('debt16').textContent=overdue.filter(c=>overdueDays(c)>=16).length;
+ const todayISO=localISODate();
+ document.getElementById('promiseToday').textContent=db.collections.filter(x=>x.promiseDate===todayISO).length;
+ box.innerHTML=overdue.map(c=>{
+   const r=collectionRecord(c.id),d=overdueDays(c);
+   return `<div class="card"><div class="row"><div><b>${c.name}</b><div class="muted">${d} días vencido · ${c.plan}</div></div><span class="pill bad">$${Math.max(0,c.price-(c.discount||0))}</span></div>
+   <div class="small muted">Seguimiento: ${r?.status||'pendiente'}${r?.promiseDate?' · promesa '+fmt(r.promiseDate):''}</div>
+   <div class="actions" style="margin-top:10px"><button class="ghost" onclick="collectionWA(${c.id})">WhatsApp</button><button class="ghost" onclick="markContacted(${c.id})">Contactado</button><button class="ghost" onclick="setPromise(${c.id})">Promesa</button><button class="primary" onclick="quickPay(${c.id})">Cobrar</button></div></div>`;
+ }).join('')||'<p class="muted">No hay clientes vencidos 🎉</p>';
+}
+
+async function addExpense(){
+ const date=document.getElementById('expenseDate')?.value||localISODate();
+ const amount=Number(document.getElementById('expenseAmount').value||0);
+ if(amount<=0)return alert('Ingresa un monto válido.');
+ const {error}=await sb.from('expenses').insert({
+   id:Date.now(),owner_id:user.id,category:document.getElementById('expenseCategory').value,
+   amount,method:document.getElementById('expenseMethod').value,expense_date:date,
+   notes:document.getElementById('expenseNote').value.trim()
+ });
+ if(error)return alert('No se pudo guardar gasto: '+error.message);
+ document.getElementById('expenseAmount').value='';
+ document.getElementById('expenseNote').value='';
+ await loadCloudData();renderCash();
+}
+async function deleteExpense(id){
+ if(!confirm('¿Eliminar este gasto?'))return;
+ const {error}=await sb.from('expenses').delete().eq('id',id);
+ if(error)return alert(error.message);
+ await loadCloudData();renderCash();
+}
+async function renderCash(){
+ const month=document.getElementById('cashMonth')?.value;
+ if(!month)return;
+
+ // Payments: query Supabase directly for the selected month.
+ const start=month+'-01';
+ const [yy,mm]=month.split('-').map(Number);
+ const nextMonthDate=new Date(Date.UTC(yy,mm,1));
+ const nextMonth=nextMonthDate.toISOString().slice(0,7)+'-01';
+
+ let pays=db.payments.filter(p=>p.date>=start&&p.date<nextMonth);
+ if(sb && user){
+   const {data,error}=await sb.from('payments')
+     .select('*')
+     .gte('payment_date',start)
+     .lt('payment_date',nextMonth)
+     .order('payment_date',{ascending:false});
+   if(!error && data){
+     pays=data.map(p=>({
+       id:Number(p.id),
+       client:Number(p.client_id),
+       amount:Number(p.amount||0),
+       method:p.method||'',
+       date:p.payment_date
+     }));
+   }
+ }
+
+ const exps=db.expenses
+   .filter(e=>e.date>=start&&e.date<nextMonth)
+   .sort((a,b)=>b.date.localeCompare(a.date));
+
+ const income=pays.reduce((s,p)=>s+p.amount,0);
+ const expenses=exps.reduce((s,e)=>s+e.amount,0);
+
+ document.getElementById('cashIncome').textContent='$'+income.toLocaleString('es-MX');
+ document.getElementById('cashExpenses').textContent='$'+expenses.toLocaleString('es-MX');
+ document.getElementById('cashNet').textContent='$'+(income-expenses).toLocaleString('es-MX');
+ document.getElementById('cashMoves').textContent=pays.length+exps.length;
+
+ const methods=['Efectivo','Transferencia','Tarjeta','Registro'];
+ document.getElementById('cashMethods').innerHTML=methods.map(m=>{
+   const total=pays.filter(p=>p.method===m).reduce((s,p)=>s+p.amount,0);
+   return `<div class="row" style="padding:8px 0"><span>${m}</span><b>$${total.toLocaleString('es-MX')}</b></div>`;
+ }).join('');
+
+ const incomeList=document.getElementById('incomeList');
+ if(incomeList){
+   incomeList.innerHTML=pays.map(p=>{
+     const c=db.clients.find(x=>x.id===p.client);
+     return `<div class="card"><div class="row"><div><b>${c?.name||'Cliente'}</b><div class="muted">${fmt(p.date)} · ${p.method}</div></div><b>$${p.amount.toLocaleString('es-MX')}</b></div></div>`;
+   }).join('')||'<p class="muted">Sin ingresos en este mes.</p>';
+ }
+
+ document.getElementById('expenseList').innerHTML=exps.map(e=>`
+   <div class="card">
+     <div class="row">
+       <div>
+         <b>${e.category}</b>
+         <div class="muted">${fmt(e.date)} · ${e.method}${e.notes?' · '+e.notes:''}</div>
+       </div>
+       <div><b>$${e.amount.toLocaleString('es-MX')}</b> <button class="danger" onclick="deleteExpense(${e.id})">×</button></div>
+     </div>
+   </div>`).join('')||'<p class="muted">Sin gastos registrados en este mes.</p>';
+}
+
+function fillAttendanceClients(){
+ const sel=document.getElementById('attClient');
+ if(!sel)return;
+ sel.innerHTML=db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')||'<option value="">Sin clientes</option>';
+}
+
+async function registerAttendance(){
+ const date=document.getElementById('attDate').value;
+ const time=document.getElementById('attClass').value;
+ const clientId=Number(document.getElementById('attClient').value);
+ if(!date||!time||!clientId)return alert('Selecciona fecha, horario y cliente.');
+ const existing=db.attendance.find(a=>a.client===clientId&&a.date===date&&a.time===time);
+ if(existing)return alert('Este cliente ya tiene asistencia registrada en esta clase.');
+ const count=db.attendance.filter(a=>a.date===date&&a.time===time).length;
+ if(count>=24)return alert('Esta clase ya alcanzó la capacidad máxima de 24 alumnos.');
+ const {error}=await sb.from('attendance').insert({
+   id:Date.now(),
+   owner_id:user.id,
+   client_id:clientId,
+   attendance_date:date,
+   class_time:time
+ });
+ if(error){
+   if((error.message||'').toLowerCase().includes('attendance')) {
+     return alert('Falta activar el módulo de asistencia en Supabase. Ve a Ajustes y ejecuta el SQL de asistencia.');
+   }
+   return alert('No se pudo registrar asistencia: '+error.message);
+ }
+ await loadCloudData();
+ renderAttendance();
+}
+
+async function deleteAttendance(id){
+ if(!confirm('¿Eliminar esta asistencia?'))return;
+ const {error}=await sb.from('attendance').delete().eq('id',id);
+ if(error)return alert('No se pudo eliminar: '+error.message);
+ await loadCloudData();
+ renderAttendance();
+}
+
+function renderAttendance(){
+ const date=document.getElementById('attDate')?.value;
+ const time=document.getElementById('attClass')?.value;
+ const box=document.getElementById('attendanceList');
+ const cap=document.getElementById('classCapacity');
+ if(!box||!cap||!date||!time)return;
+ const rows=db.attendance.filter(a=>a.date===date&&a.time===time);
+ cap.textContent=`${rows.length} / 24`;
+ cap.className='pill '+(rows.length>=24?'bad':rows.length>=20?'soon':'ok');
+ box.innerHTML=rows.map(a=>{
+   const c=db.clients.find(x=>x.id===a.client);
+   return `<div class="card"><div class="row"><div><b>${c?.name||'Cliente'}</b><div class="muted">${c?.plan||''}</div></div><button class="danger" onclick="deleteAttendance(${a.id})">Quitar</button></div></div>`;
+ }).join('')||'<p class="muted">Todavía no hay alumnos registrados en este horario.</p>';
+}
+
+
+function monthBounds(month){
+ const [y,m]=month.split('-').map(Number);
+ const start=month+'-01';
+ const nextDt=new Date(Date.UTC(y,m,1));
+ const next=nextDt.toISOString().slice(0,7)+'-01';
+ const endDt=new Date(Date.UTC(y,m,0));
+ const end=endDt.toISOString().slice(0,10);
+ return {start,next,end};
+}
+function shiftMonth(month,delta){
+ const [y,m]=month.split('-').map(Number);
+ const d=new Date(Date.UTC(y,m-1+delta,1));
+ return d.toISOString().slice(0,7);
+}
+function monthLabel(month){
+ const [y,m]=month.split('-').map(Number);
+ return new Date(y,m-1,1).toLocaleDateString('es-MX',{month:'short',year:'2-digit'});
+}
+function reportMetrics(month){
+ const {start,next,end}=monthBounds(month);
+ const pays=db.payments.filter(p=>p.date>=start&&p.date<next);
+ const exps=db.expenses.filter(e=>e.date>=start&&e.date<next);
+ const atts=db.attendance.filter(a=>a.date>=start&&a.date<next);
+ const income=pays.reduce((s,p)=>s+p.amount,0);
+ const expenses=exps.reduce((s,e)=>s+e.amount,0);
+ const net=income-expenses;
+ const newClients=db.clients.filter(c=>c.start>=start&&c.start<next).length;
+ const renewals=pays.filter(p=>(p.method||'').toLowerCase()!=='registro').length;
+ const activeEnd=db.clients.filter(c=>c.start<=end&&c.expires>=end).length;
+ const inactiveEnd=db.clients.filter(c=>c.start<=end&&c.expires<end).length;
+ const avgTicket=pays.length?income/pays.length:0;
+ return {month,pays,exps,atts,income,expenses,net,newClients,renewals,activeEnd,inactiveEnd,avgTicket};
+}
+function deltaHTML(current,previous,reverse=false){
+ if(previous===0){
+   if(current===0)return {text:'Sin cambio vs mes anterior',cls:'flat'};
+   return {text:'Nuevo vs mes anterior',cls:reverse?'down':'up'};
+ }
+ const pct=((current-previous)/Math.abs(previous))*100;
+ const improved=reverse?pct<0:pct>0;
+ const cls=Math.abs(pct)<0.05?'flat':improved?'up':'down';
+ const arrow=pct>0?'▲':pct<0?'▼':'•';
+ return {text:`${arrow} ${Math.abs(pct).toFixed(1)}% vs mes anterior`,cls};
+}
+function applyDelta(id,current,previous,reverse=false){
+ const d=deltaHTML(current,previous,reverse),el=document.getElementById(id);
+ if(el){el.textContent=d.text;el.className='delta '+d.cls;}
+}
+function renderBreakdown(containerId,rows,total){
+ const box=document.getElementById(containerId);if(!box)return;
+ if(!rows.length){box.innerHTML='<p class="muted">Sin datos en este mes.</p>';return;}
+ const max=Math.max(...rows.map(x=>x.value),1);
+ box.innerHTML=rows.map(x=>`<div class="barrow"><span>${x.label}</span><div class="bartrack"><div class="barfill" style="width:${Math.max(2,(x.value/max)*100)}%"></div></div><b>${x.money?'$'+x.value.toLocaleString('es-MX'):x.value}</b></div>`).join('');
+}
+function renderReports(){
+ const month=document.getElementById('reportMonth')?.value;if(!month)return;
+ const cur=reportMetrics(month),prev=reportMetrics(shiftMonth(month,-1));
+
+ document.getElementById('repIncome').textContent='$'+cur.income.toLocaleString('es-MX');
+ document.getElementById('repExpenses').textContent='$'+cur.expenses.toLocaleString('es-MX');
+ document.getElementById('repNet').textContent='$'+cur.net.toLocaleString('es-MX');
+ document.getElementById('repNewClients').textContent=cur.newClients;
+ document.getElementById('repRenewals').textContent=cur.renewals;
+ document.getElementById('repAttendance').textContent=cur.atts.length;
+ document.getElementById('repActiveEnd').textContent=cur.activeEnd;
+ document.getElementById('repInactiveEnd').textContent=cur.inactiveEnd;
+ document.getElementById('repAvgTicket').textContent='$'+Math.round(cur.avgTicket).toLocaleString('es-MX');
+
+ applyDelta('repIncomeDelta',cur.income,prev.income);
+ applyDelta('repExpensesDelta',cur.expenses,prev.expenses,true);
+ applyDelta('repNetDelta',cur.net,prev.net);
+ applyDelta('repNewDelta',cur.newClients,prev.newClients);
+ applyDelta('repRenewDelta',cur.renewals,prev.renewals);
+ applyDelta('repAttendanceDelta',cur.atts.length,prev.atts.length);
+
+ document.getElementById('reportSummary').innerHTML=`
+   <div class="row" style="padding:7px 0"><span>Pagos registrados</span><b>${cur.pays.length}</b></div>
+   <div class="row" style="padding:7px 0"><span>Gastos registrados</span><b>${cur.exps.length}</b></div>
+   <div class="row" style="padding:7px 0"><span>Clientes nuevos</span><b>${cur.newClients}</b></div>
+   <div class="row" style="padding:7px 0"><span>Renovaciones</span><b>${cur.renewals}</b></div>
+   <div class="row" style="padding:7px 0"><span>Margen neto</span><b>${cur.income?((cur.net/cur.income)*100).toFixed(1):'0.0'}%</b></div>`;
+
+ const methods={};
+ cur.pays.forEach(p=>methods[p.method||'Sin método']=(methods[p.method||'Sin método']||0)+p.amount);
+ renderBreakdown('reportPaymentMethods',Object.entries(methods).map(([label,value])=>({label,value,money:true})).sort((a,b)=>b.value-a.value),cur.income);
+
+ const cats={};
+ cur.exps.forEach(e=>cats[e.category||'Otro']=(cats[e.category||'Otro']||0)+e.amount);
+ renderBreakdown('reportExpenseCategories',Object.entries(cats).map(([label,value])=>({label,value,money:true})).sort((a,b)=>b.value-a.value),cur.expenses);
+
+ const classes={};
+ cur.atts.forEach(a=>classes[a.time]=(classes[a.time]||0)+1);
+ renderBreakdown('reportAttendanceClasses',Object.entries(classes).map(([label,value])=>({label,value,money:false})).sort((a,b)=>a.label.localeCompare(b.label)),cur.atts.length);
+
+ const months=[];
+ for(let i=5;i>=0;i--){const m=shiftMonth(month,-i),r=reportMetrics(m);months.push({label:monthLabel(m),value:r.net});}
+ const max=Math.max(...months.map(x=>Math.abs(x.value)),1);
+ document.getElementById('reportTrend').innerHTML=months.map(x=>`<div class="barrow"><span>${x.label}</span><div class="bartrack"><div class="barfill" style="width:${Math.max(2,(Math.abs(x.value)/max)*100)}%"></div></div><b>$${x.value.toLocaleString('es-MX')}</b></div>`).join('');
+}
+function exportReportCSV(){
+ const month=document.getElementById('reportMonth')?.value;if(!month)return;
+ const r=reportMetrics(month);
+ const rows=[
+   ['Central Fit OS - Reporte mensual',month],
+   ['Ingresos',r.income],
+   ['Gastos',r.expenses],
+   ['Utilidad neta',r.net],
+   ['Clientes nuevos',r.newClients],
+   ['Renovaciones',r.renewals],
+   ['Asistencias',r.atts.length],
+   ['Activos al cierre',r.activeEnd],
+   ['Inactivos al cierre',r.inactiveEnd],
+   ['Ticket promedio',Math.round(r.avgTicket)],
+   [],
+   ['PAGOS'],
+   ['Fecha','Cliente','Método','Monto']
+ ];
+ r.pays.forEach(p=>{
+   const c=db.clients.find(x=>x.id===p.client);
+   rows.push([p.date,c?.name||'Cliente',p.method,p.amount]);
+ });
+ rows.push([],['GASTOS'],['Fecha','Categoría','Método','Monto','Nota']);
+ r.exps.forEach(e=>rows.push([e.date,e.category,e.method,e.amount,e.notes||'']));
+ const csv=rows.map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='central-fit-reporte-'+month+'.csv';a.click();URL.revokeObjectURL(url);
+}
+
+
+const BACKUP_META_KEY='central_fit_os_last_backup';
+let pendingRestoreData=null;
+
+function renderSecurity(){
+ const u=document.getElementById('securityUser');
+ const s=document.getElementById('securitySession');
+ const dbs=document.getElementById('securityDbStatus');
+ const lb=document.getElementById('lastBackupText');
+ const counts=document.getElementById('backupCounts');
+ const reset=document.getElementById('resetEmail');
+
+ if(u)u.textContent=user?.email||'Sin sesión';
+ if(s){s.textContent=user?'Activa':'Sin sesión';s.className='pill '+(user?'ok':'bad');}
+ if(dbs){dbs.textContent=(sb&&user)?'Conectada':'Sin conexión';dbs.className='pill '+((sb&&user)?'ok':'bad');}
+ const last=localStorage.getItem(BACKUP_META_KEY);
+ if(lb)lb.textContent=last?new Date(last).toLocaleString('es-MX'):'Nunca';
+ if(counts)counts.textContent=`${db.clients.length} clientes · ${db.payments.length} pagos · ${db.attendance?.length||0} asistencias · ${db.expenses.length} gastos`;
+ if(reset&&!reset.value&&user?.email)reset.value=user.email;
+}
+
+async function fetchAllBackupData(){
+ const tables=['clients','payments','attendance','membership_actions','collections','expenses'];
+ const result={};
+ const skipped=[];
+ for(const table of tables){
+   const {data,error}=await sb.from(table).select('*');
+   if(error){
+     const msg=String(error.message||'').toLowerCase();
+     const missing=msg.includes('could not find the table')||msg.includes('does not exist')||msg.includes('schema cache');
+     if(missing){
+       result[table]=[];
+       skipped.push(table);
+       continue;
+     }
+     throw new Error(table+': '+error.message);
+   }
+   result[table]=data||[];
+ }
+ return {tables:result,skipped};
+}
+
+async function downloadFullBackup(){
+ try{
+   const backup=await fetchAllBackupData();
+   const data=backup.tables;
+   const payload={
+     app:'Central Fit OS',
+     version:'1.3.2',
+     exported_at:new Date().toISOString(),
+     user_email:user?.email||'',
+     skipped_tables:backup.skipped,
+     tables:data
+   };
+   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement('a');
+   a.href=url;
+   a.download='central-fit-os-backup-'+new Date().toISOString().slice(0,10)+'.json';
+   document.body.appendChild(a);
+   a.click();
+   a.remove();
+   URL.revokeObjectURL(url);
+   localStorage.setItem(BACKUP_META_KEY,new Date().toISOString());
+   renderSecurity();
+   if(backup.skipped.length){
+     alert('Respaldo descargado ✅\n\nMódulos no activados y omitidos: '+backup.skipped.join(', '));
+   }else{
+     alert('Respaldo descargado ✅');
+   }
+ }catch(err){
+   alert('No se pudo crear el respaldo: '+err.message);
+ }
+}
+
+function previewRestore(event){
+ const file=event.target.files?.[0];
+ const preview=document.getElementById('restorePreview');
+ const btn=document.getElementById('restoreBtn');
+ pendingRestoreData=null;
+ btn?.classList.add('hidden');
+
+ if(!file){
+   if(preview)preview.innerHTML='';
+   return;
+ }
+
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const x=JSON.parse(reader.result);
+     if(x.app!=='Central Fit OS'||!x.tables)throw new Error('Archivo no compatible');
+     pendingRestoreData=x;
+     const t=x.tables;
+     preview.innerHTML=`<div class="note">
+       <b>${file.name}</b>
+       <div class="muted">${t.clients?.length||0} clientes · ${t.payments?.length||0} pagos · ${t.attendance?.length||0} asistencias · ${t.expenses?.length||0} gastos</div>
+     </div>`;
+     btn?.classList.remove('hidden');
+   }catch(e){
+     preview.innerHTML='<div class="card">Archivo de respaldo no válido.</div>';
+   }
+ };
+ reader.readAsText(file);
+}
+
+async function upsertTable(table,rows){
+ if(!rows||!rows.length)return;
+ for(let i=0;i<rows.length;i+=200){
+   const {error}=await sb.from(table).upsert(rows.slice(i,i+200),{onConflict:'id'});
+   if(error){
+     const msg=String(error.message||'').toLowerCase();
+     const missing=msg.includes('could not find the table')||msg.includes('does not exist')||msg.includes('schema cache');
+     if(missing)return;
+     throw new Error(table+': '+error.message);
+   }
+ }
+}
+
+async function restoreBackup(){
+ if(!pendingRestoreData)return alert('Selecciona un respaldo.');
+ if(!confirm('¿Restaurar este respaldo?'))return;
+ if(!confirm('Confirmación final: ¿continuar?'))return;
+
+ try{
+   const t=pendingRestoreData.tables;
+   await upsertTable('clients',t.clients||[]);
+   await upsertTable('payments',t.payments||[]);
+   await upsertTable('attendance',t.attendance||[]);
+   await upsertTable('membership_actions',t.membership_actions||[]);
+   await upsertTable('collections',t.collections||[]);
+   await upsertTable('expenses',t.expenses||[]);
+   await loadCloudData();
+   alert('Respaldo restaurado correctamente ✅');
+   pendingRestoreData=null;
+   document.getElementById('restorePreview').innerHTML='';
+   document.getElementById('restoreBtn').classList.add('hidden');
+   document.getElementById('restoreFile').value='';
+ }catch(err){
+   alert('La restauración se detuvo: '+err.message);
+ }
+}
+
+async function sendPasswordReset(){
+ const email=document.getElementById('resetEmail')?.value.trim();
+ if(!email)return alert('Escribe el correo.');
+ const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin});
+ if(error)return alert('No se pudo enviar: '+error.message);
+ alert('Enlace de recuperación enviado ✅');
+}
+
+
+let selectedNewClientPhoto=null;
+const signedPhotoCache=new Map();
+const PHOTO_URL_TTL_MS=45*60*1000;
+
+function initials(name){
+  const parts=String(name||'CF').trim().split(/\s+/).filter(Boolean);
+  return (parts[0]?.[0]||'C')+(parts[1]?.[0]||'F');
+}
+function previewNewClientPhoto(event){
+  const file=event.target.files?.[0];
+  selectedNewClientPhoto=file||null;
+  const el=document.getElementById('newPhotoAvatar');
+  if(!el)return;
+  if(!file){el.className='avatar-lg avatar-placeholder';el.removeAttribute('style');el.textContent='CF';return;}
+  const reader=new FileReader();
+  reader.onload=()=>{el.className='avatar-lg';el.textContent='';el.style.background=`center/cover no-repeat url("${reader.result}")`;};
+  reader.readAsDataURL(file);
+}
+async function compressImage(file,maxSize=900,quality=.78){
+  return new Promise((resolve,reject)=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const scale=Math.min(1,maxSize/Math.max(img.width,img.height));
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(blob=>{URL.revokeObjectURL(url);blob?resolve(blob):reject(new Error('No se pudo procesar la imagen.'));},'image/jpeg',quality);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Imagen no válida.'));};
+    img.src=url;
+  });
+}
+async function uploadClientPhoto(clientId,file,oldPath=''){
+  const blob=await compressImage(file);
+  const path=`${user.id}/${clientId}/${Date.now()}.jpg`;
+  const {error}=await sb.storage.from('client-photos').upload(path,blob,{contentType:'image/jpeg',upsert:false});
+  if(error)throw new Error(error.message);
+  if(oldPath){await sb.storage.from('client-photos').remove([oldPath]);signedPhotoCache.delete(oldPath);}
+  return path;
+}
+async function getSignedPhotoUrl(path,force=false){
+  if(!path)return '';
+  const cached=signedPhotoCache.get(path);
+  const now=Date.now();
+  if(!force && cached && (now-cached.createdAt)<PHOTO_URL_TTL_MS){
+    return cached.url;
+  }
+  const {data,error}=await sb.storage.from('client-photos').createSignedUrl(path,3600);
+  if(error)return '';
+  const url=data?.signedUrl||'';
+  if(url)signedPhotoCache.set(path,{url,createdAt:now});
+  return url;
+}
+async function hydratePhotoImages(root=document){
+  const imgs=[...root.querySelectorAll('img[data-photo-path]')];
+  await Promise.all(imgs.map(async img=>{
+    const path=img.dataset.photoPath;
+    const name=img.getAttribute('alt')||'CF';
+    if(!path)return;
+
+    const setFallback=()=>{
+      const fallback=document.createElement('div');
+      fallback.className=img.classList.contains('avatar-lg')?'avatar-lg avatar-placeholder':'avatar avatar-placeholder';
+      fallback.textContent=initials(name);
+      img.replaceWith(fallback);
+    };
+
+    try{
+      let url=await getSignedPhotoUrl(path,false);
+      if(!url){setFallback();return;}
+      img.onerror=async ()=>{
+        img.onerror=null;
+        signedPhotoCache.delete(path);
+        const retryUrl=await getSignedPhotoUrl(path,true);
+        if(retryUrl){
+          img.src=retryUrl;
+          img.onerror=setFallback;
+        }else{
+          setFallback();
+        }
+      };
+      img.src=url;
+    }catch(e){
+      setFallback();
+    }
+  }));
+}
+async function changeProfilePhoto(event){
+  const file=event.target.files?.[0],c=db.clients.find(x=>x.id===currentProfileClientId);
+  if(!file||!c)return;
+  try{
+    const path=await uploadClientPhoto(c.id,file,c.photoPath||'');
+    const {error}=await sb.from('clients').update({photo_path:path}).eq('id',c.id);
+    if(error)throw error;
+    await loadCloudData();renderClientProfile();alert('Foto actualizada ✅');
+  }catch(e){alert('No se pudo actualizar la foto: '+e.message);}
+  event.target.value='';
+}
+async function removeClientPhoto(clientId){
+  const c=db.clients.find(x=>x.id===clientId);if(!c?.photoPath)return;
+  if(!confirm('¿Quitar la foto de este cliente?'))return;
+  const {error}=await sb.storage.from('client-photos').remove([c.photoPath]);
+  if(error)return alert(error.message);
+  const {error:ue}=await sb.from('clients').update({photo_path:null}).eq('id',clientId);
+  if(ue)return alert(ue.message);
+  signedPhotoCache.delete(c.photoPath);
+  await loadCloudData();renderClientProfile();
+}
+
+
+function pairPartner(c){
+  if(!c?.linkedClientId)return null;
+  return db.clients.find(x=>x.id===c.linkedClientId)||null;
+}
+function pairCode(c){
+  const p=pairPartner(c);
+  const a=Math.min(c.id,p?.id||c.id);
+  return 'P-'+String(a).slice(-4);
+}
+function isPairLinked(c){
+  return c?.plan==='Pareja' && !!pairPartner(c);
+}
+function pairPrimary(c){
+  const p=pairPartner(c);
+  if(!p)return true;
+  return c.id<p.id;
+}
+function pairEffectivePrice(c){return Math.max(0,c.price-(c.discount||0));}
+
+async function signedAvatarMarkup(c,large=false){
+  if(!c)return '';
+  const cls=large?'avatar-lg':'avatar';
+  if(!c.photoPath)return `<div class="${cls} avatar-placeholder">${escapeAttr(initials(c.name))}</div>`;
+  return `<img class="${cls}" data-photo-path="${escapeAttr(c.photoPath)}" alt="${escapeAttr(c.name)}">`;
+}
+
+async function renewPair(clientId){
+  const c=db.clients.find(x=>x.id===clientId);
+  const p=pairPartner(c);
+  if(!c||!p)return alert('Esta membresía todavía no tiene una pareja vinculada.');
+  const total=pairEffectivePrice(c)+pairEffectivePrice(p);
+  if(!confirm(`Renovar pareja:\n${c.name} + ${p.name}\nTotal: $${total}\n\n¿Continuar?`))return;
+
+  const todayISO=new Date().toISOString().slice(0,10);
+  const baseC=new Date(c.expires+'T12:00:00')<new Date()?todayISO:c.expires;
+  const baseP=new Date(p.expires+'T12:00:00')<new Date()?todayISO:p.expires;
+  const sharedBase=baseC>baseP?baseC:baseP;
+  const newExp=addDaysISO(sharedBase,30);
+
+  const {error:u1}=await sb.from('clients').update({expires:newExp,plan:'Pareja',linked_client_id:p.id}).eq('id',c.id);
+  if(u1)return alert('No se pudo renovar: '+u1.message);
+  const {error:u2}=await sb.from('clients').update({expires:newExp,plan:'Pareja',linked_client_id:c.id}).eq('id',p.id);
+  if(u2)return alert('Se actualizó una persona, pero falló la segunda: '+u2.message);
+
+  const date=todayISO;
+  const rows=[
+    {id:Date.now(),owner_id:user.id,client_id:c.id,amount:pairEffectivePrice(c),method:'Pareja',payment_date:date},
+    {id:Date.now()+1,owner_id:user.id,client_id:p.id,amount:pairEffectivePrice(p),method:'Pareja',payment_date:date}
+  ];
+  const {error:pe}=await sb.from('payments').insert(rows);
+  if(pe)return alert('Se renovó la vigencia, pero falló el registro del pago: '+pe.message);
+
+  await logMembershipAction(c.id,'Renovación pareja',`${c.name} + ${p.name} · vence ${newExp}`);
+  await logMembershipAction(p.id,'Renovación pareja',`${c.name} + ${p.name} · vence ${newExp}`);
+  await loadCloudData();
+  alert('Pareja renovada correctamente ✅');
+}
+
+async function syncPair(clientId){
+  const c=db.clients.find(x=>x.id===clientId),p=pairPartner(c);
+  if(!c||!p)return alert('No hay pareja vinculada.');
+  const shared=c.expires>p.expires?c.expires:p.expires;
+  const {error}=await sb.from('clients').update({expires:shared}).in('id',[c.id,p.id]);
+  if(error)return alert(error.message);
+  await loadCloudData();
+  alert('Vencimiento sincronizado ✅');
+}
+
+
+function pairWhatsApp(clientId){
+  const c=db.clients.find(x=>x.id===clientId);
+  const p=pairPartner(c);
+  if(!c||!p)return alert('No hay pareja vinculada.');
+
+  const msg=`Hola 👋 Les recordamos que su membresía en pareja de Central Fit vence el ${fmt(c.expires)}. ¡Los esperamos para seguir entrenando juntos en Central Fit! 💪`;
+
+  const nums=[c,p].map(x=>{
+    let d=(x.phone||'').replace(/\D/g,'');
+    if(d.length===10)d='52'+d;
+    return d;
+  }).filter(Boolean);
+
+  if(nums.length===0)return alert('Ninguno de los dos tiene teléfono registrado.');
+
+  if(nums.length===1){
+    location.href='https://wa.me/'+nums[0]+'?text='+encodeURIComponent(msg);
+    return;
+  }
+
+  // Open first now and second shortly after. iOS may prompt/block the second.
+  window.open('https://wa.me/'+nums[0]+'?text='+encodeURIComponent(msg),'_blank');
+  setTimeout(()=>window.open('https://wa.me/'+nums[1]+'?text='+encodeURIComponent(msg),'_blank'),500);
+}
+
+
+async function deleteClientForever(clientId){
+  const c=db.clients.find(x=>x.id===clientId);
+  if(!c)return;
+
+  const typed=prompt(
+    `Eliminar cliente definitivamente\n\n`+
+    `Se eliminará a ${c.name} y sus registros relacionados.\n`+
+    `Escribe ELIMINAR para continuar:`
+  );
+  if(typed!=='ELIMINAR')return;
+
+  if(!confirm(`Última confirmación: ¿eliminar definitivamente a ${c.name}?`))return;
+
+  try{
+    // If linked as a pair, unlink partner first for a cleaner UI.
+    const partner=pairPartner(c);
+    if(partner){
+      await sb.from('clients').update({linked_client_id:null}).eq('id',partner.id);
+    }
+
+    // Remove profile photo from Storage if present.
+    if(c.photoPath){
+      await sb.storage.from('client-photos').remove([c.photoPath]);
+      signedPhotoCache.delete(c.photoPath);
+    }
+
+    const {error}=await sb.from('clients').delete().eq('id',clientId);
+    if(error)throw error;
+
+    currentProfileClientId=null;
+    await loadCloudData();
+    show('clients');
+    alert('Cliente eliminado definitivamente ✅');
+  }catch(e){
+    alert('No se pudo eliminar el cliente: '+e.message);
+  }
+}
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){
+    const now=Date.now();
+    for(const [path,item] of signedPhotoCache.entries()){
+      if(!item || !item.createdAt || (now-item.createdAt)>=PHOTO_URL_TTL_MS){
+        signedPhotoCache.delete(path);
+      }
+    }
+    hydratePhotoImages(document);
+  }
+});
+
+
+function normalizeClientName(value){
+  return String(value||'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().trim().replace(/\s+/g,' ');
+}
+function normalizePhone(value){
+  let d=String(value||'').replace(/\D/g,'');
+  if(d.length===12 && d.startsWith('52'))d=d.slice(2);
+  return d;
+}
+function findPotentialDuplicates(name,phone,excludeId=null){
+  const nn=normalizeClientName(name);
+  const np=normalizePhone(phone);
+  return db.clients.filter(c=>{
+    if(excludeId && c.id===excludeId)return false;
+    const samePhone=np && normalizePhone(c.phone)===np;
+    const sameName=nn && normalizeClientName(c.name)===nn;
+    return samePhone||sameName;
+  }).map(c=>({
+    client:c,
+    samePhone:np && normalizePhone(c.phone)===np,
+    sameName:nn && normalizeClientName(c.name)===nn
+  }));
+}
+function duplicateMessage(matches){
+  return matches.map(m=>{
+    const reasons=[];
+    if(m.samePhone)reasons.push('mismo teléfono');
+    if(m.sameName)reasons.push('mismo nombre');
+    return `${m.client.name} · ${m.client.phone||'sin teléfono'} · ${reasons.join(' y ')}`;
+  }).join('\n');
+}
+function renderDuplicateReview(){
+  const box=document.getElementById('duplicateReviewList');
+  if(!box)return;
+
+  const groups=[];
+  const groupedKeys=new Set();
+
+  for(const c of db.clients){
+    const n=normalizeClientName(c.name);
+    const p=normalizePhone(c.phone);
+    const matches=db.clients.filter(x=>x.id!==c.id && (
+      (p && normalizePhone(x.phone)===p) ||
+      (n && normalizeClientName(x.name)===n)
+    ));
+    if(!matches.length)continue;
+
+    const ids=[c.id,...matches.map(x=>x.id)].sort((a,b)=>a-b);
+    const key=ids.join('-');
+    if(groupedKeys.has(key))continue;
+    groupedKeys.add(key);
+
+    const unique=[c,...matches].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+    groups.push(unique);
+  }
+
+  if(!groups.length){
+    box.innerHTML='<p class="muted">No se detectaron posibles duplicados.</p>';
+    return;
+  }
+
+  box.innerHTML=groups.map(group=>`
+    <div class="card dup-card">
+      <div class="dup-match">⚠️ POSIBLE DUPLICADO</div>
+      ${group.map(c=>`
+        <div class="row" style="padding:8px 0;border-bottom:1px solid #3a3420">
+          <div>
+            <b>${c.name}</b>
+            <div class="muted">${c.phone||'Sin teléfono'} · ${c.plan} · vence ${fmt(c.expires)}</div>
+          </div>
+          <button class="ghost" onclick="openClientProfile(${c.id})">Ver</button>
+        </div>`).join('')}
+      <div class="small muted" style="margin-top:8px">Revisa las fichas antes de eliminar cualquier registro repetido.</div>
+    </div>
+  `).join('');
+}
+
+function renderDash(){
+ let month=new Date().toISOString().slice(0,7),pays=db.payments.filter(p=>p.date.startsWith(month));
+ active.textContent=db.clients.filter(c=>status(c)==='active').length;expired.textContent=db.clients.filter(c=>status(c)==='expired').length;soon.textContent=db.clients.filter(c=>['soon','urgent'].includes(status(c))).length;income.textContent='$'+pays.reduce((s,p)=>s+p.amount,0).toLocaleString('es-MX');
+ const monthExpenseTotal=db.expenses.filter(e=>e.date.startsWith(month)).reduce((s,e)=>s+e.amount,0);
+ const me=document.getElementById('monthExpenses');
+ if(me)me.textContent='$'+monthExpenseTotal.toLocaleString('es-MX');newClients.textContent=db.clients.filter(c=>c.start.startsWith(month)).length;
+ const todayISO=localISODate();
+ const ta=document.getElementById('todayAttendance');
+ if(ta)ta.textContent=db.attendance.filter(a=>a.date===todayISO).length;
+ upcoming.innerHTML=db.clients.filter(c=>daysTo(c.expires)>=0&&daysTo(c.expires)<=7).sort((a,b)=>a.expires.localeCompare(b.expires)).map(c=>`<div class="card"><div class="row"><b>${c.name}</b><span class="pill ${daysTo(c.expires)<=3?'urgent':'soon'}">${daysTo(c.expires)} días</span></div><div class="muted">Vence ${fmt(c.expires)}</div></div>`).join('')||'<p class="muted">Sin vencimientos próximos.</p>'
+}
+function renderClients(){
+ let q=(document.getElementById('search')?.value||'').toLowerCase();
+ let arr=db.clients.filter(c=>c.name.toLowerCase().includes(q)||(c.phone||'').includes(q));
+ const box=document.getElementById('clientList');
+ const shown=new Set();
+ const cards=[];
+
+ for(const c of arr){
+   if(shown.has(c.id))continue;
+   const p=pairPartner(c);
+
+   if(isPairLinked(c)&&p){
+     shown.add(c.id);shown.add(p.id);
+     const st1=status(c),st2=status(p);
+     const exp=c.expires>p.expires?c.expires:p.expires;
+     const label=(st1==='expired'||st2==='expired')?'Vencida':(st1==='soon'||st1==='urgent'||st2==='soon'||st2==='urgent')?'Próxima':'Activa';
+     const cls=label==='Activa'?'ok':label==='Vencida'?'bad':'soon';
+     const a1=c.photoPath?`<img class="avatar" data-photo-path="${escapeAttr(c.photoPath)}" alt="${escapeAttr(c.name)}">`:`<div class="avatar avatar-placeholder">${escapeAttr(initials(c.name))}</div>`;
+     const a2=p.photoPath?`<img class="avatar" data-photo-path="${escapeAttr(p.photoPath)}" alt="${escapeAttr(p.name)}">`:`<div class="avatar avatar-placeholder">${escapeAttr(initials(p.name))}</div>`;
+     const totalPair=pairEffectivePrice(c)+pairEffectivePrice(p);
+     cards.push(`<div class="card pair-card">
+       <div class="row"><div><span class="pair-badge">👥 MEMBRESÍA EN PAREJA</span><div class="pair-code">${pairCode(c)}</div></div><span class="pill ${cls}">${label}</span></div>
+       <div class="pair-people">
+         <div class="pair-avatars">${a1}${a2}</div>
+         <div>
+           <b>${c.name} + ${p.name}</b>
+           <div class="pair-total">$${totalPair.toLocaleString('es-MX')} total</div>
+           <div class="pair-per">$${pairEffectivePrice(c).toLocaleString('es-MX')} c/u</div>
+           <div class="muted">Vence: ${fmt(exp)}</div>
+         </div>
+       </div>
+       <div class="actions">
+         <button class="primary" onclick="renewPair(${c.id})">💳 Renovar pareja</button>
+         <button class="ghost" onclick="pairWhatsApp(${c.id})">WhatsApp pareja</button>
+         <button class="ghost" onclick="openClientProfile(${c.id})">Ver ${c.name.split(' ')[0]}</button>
+         <button class="ghost" onclick="openClientProfile(${p.id})">Ver ${p.name.split(' ')[0]}</button>
+       </div>
+       <div class="pair-subactions">
+         <button class="ghost" style="padding:8px 10px;font-size:12px" onclick="syncPair(${c.id})">Sincronizar vencimiento</button>
+       </div>
+     </div>`);
+   }else{
+     shown.add(c.id);
+     const st=status(c),label=st==='active'?'Activo':st==='frozen'?'Congelada':st==='expired'?'Vencido':'Próximo',cls=st==='active'?'ok':st==='frozen'?'soon':st==='expired'?'bad':'soon';
+     const effective=Math.max(0,c.price-(c.discount||0));
+     const avatar=c.photoPath?`<img class="avatar" data-photo-path="${escapeAttr(c.photoPath)}" alt="${escapeAttr(c.name)}">`:`<div class="avatar avatar-placeholder">${escapeAttr(initials(c.name))}</div>`;
+     cards.push(`<div class="card"><div class="client"><div style="display:flex;gap:12px;align-items:center">${avatar}<div><b>${c.name}</b><div class="muted">${c.plan} · $${effective}</div><div class="muted">Vence: ${fmt(c.expires)}</div></div></div><span class="pill ${cls}">${label}</span></div><div class="actions" style="margin-top:10px"><button class="primary" onclick="openClientProfile(${c.id})">Ver perfil</button><button class="ghost" onclick="quickPay(${c.id})">💳 Cobrar</button><button class="ghost" onclick="wa(${c.id})">WhatsApp</button></div></div>`);
+   }
+ }
+ box.innerHTML=cards.join('')||'<div class="card muted">No hay clientes registrados.</div>';
+ hydratePhotoImages(box);
+}
+function fillPayClients(){document.getElementById('payClient').innerHTML=db.clients.map(c=>`<option value="${c.id}">${c.name} — vence ${fmt(c.expires)}</option>`).join('')||'<option>Sin clientes</option>'}
+function renderPayments(){paymentList.innerHTML=db.payments.slice(0,40).map(p=>{let c=db.clients.find(x=>x.id==p.client);return `<div class="card"><div class="row"><b>${c?.name||'Cliente eliminado'}</b><b>$${p.amount}</b></div><div class="muted">${fmt(p.date)} · ${p.method}</div></div>`}).join('')||'<p class="muted">Sin pagos todavía.</p>'}
+function refresh(){renderDash();renderClients();renderPayments();fillPayClients();fillAttendanceClients();renderAttendance();fillMembershipClients();renderMembershipPanel();renderCollections();renderCash();renderReports();renderSecurity();}
+function showMembership(id){show('memberships');document.getElementById('memClient').value=id;fillMembershipClients();document.getElementById('memClient').value=id;renderMembershipPanel();}
+function quickPay(id){show('payments');document.getElementById('payClient').value=id;let c=db.clients.find(x=>x.id===id);if(c)document.getElementById('payAmount').value=Math.max(0,c.price-(c.discount||0));setSuggestedRenewalStart()}
+function wa(id){
+ let c=db.clients.find(x=>x.id===id);
+ let digits=(c.phone||'').replace(/\D/g,'');
+ if(digits.length===10) digits='52'+digits;
+ let msg=`Hola ${c.name} 👋 Te recordamos que tu membresía de Central Fit vence el ${fmt(c.expires)}. ¡Te esperamos para seguir entrenando juntos! 💪`;
+ location.href='https://wa.me/'+digits+'?text='+encodeURIComponent(msg)
+}
+
+(async()=>{
+ init();
+ if(sb){
+   const {data}=await sb.auth.getSession();
+   if(data.session){user=data.session.user;setTest('tAuth','ok','Sesión activa');await testTables();if(tClients.textContent==='OK'&&tPayments.textContent==='OK')await boot();}
+ }
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+</script>
+
+<div id="recoveryOverlay" class="recovery-overlay hidden">
+  <div class="recovery-box">
+    <div class="small muted">CENTRAL FIT OS</div>
+    <h2>Crear nueva contraseña</h2>
+    <p class="muted">Escribe tu nueva contraseña para recuperar el acceso.</p>
+    <label>Nueva contraseña</label>
+    <input id="recoveryPassword" type="password" placeholder="Mínimo 8 caracteres">
+    <label style="margin-top:12px">Confirmar contraseña</label>
+    <input id="recoveryPassword2" type="password" placeholder="Repite la contraseña">
+    <div id="recoveryMsg" class="small muted" style="margin-top:10px"></div>
+    <div class="actions" style="margin-top:16px">
+      <button class="primary" onclick="saveRecoveredPassword()">Guardar nueva contraseña</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
