@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Central Fit OS">
-<title>Central Fit OS v1.6.1</title>
+<title>Central Fit OS v1.6.2</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0d0f10;--card:#171a1c;--muted:#9ca3a8;--text:#f5f5f5;--accent:#b8ff35;--danger:#ff6262;--warn:#ffc857;--orange:#ff9f43}
@@ -79,6 +79,36 @@ hr{border:0;border-top:1px solid #2a2f31;margin:16px 0}
 
 .dup-card{border:1px solid #7a641d;background:#2a2414}
 .dup-match{font-size:12px;color:#ffd76a;font-weight:800}
+
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bottom-nav-base: 66px;
+}
+html,body{min-height:100%;margin:0;background:#05070b}
+body{min-height:100dvh;overflow-x:hidden}
+.app-header{padding-top:calc(var(--safe-top) + 12px)!important;position:relative;z-index:70}
+main,.wrap,.container,.app-shell{padding-bottom:calc(var(--bottom-nav-base) + var(--safe-bottom) + 28px)!important}
+.bottom-nav,#nav{
+  bottom:0!important;
+  padding-bottom:var(--safe-bottom)!important;
+  min-height:calc(var(--bottom-nav-base) + var(--safe-bottom))!important;
+}
+button,a,.nav-item{min-height:44px}
+@media (max-width:480px){
+  .app-header{padding-left:14px!important;padding-right:14px!important}
+  .app-header h1,.brand,.brand-title{
+    font-size:clamp(26px,7vw,34px)!important;
+    line-height:1.05!important;
+    white-space:nowrap;
+  }
+  .app-header .actions,.top-actions{gap:8px!important;flex-shrink:0}
+  .app-header button{padding-left:14px!important;padding-right:14px!important}
+  main,.wrap,.container{padding-left:14px!important;padding-right:14px!important}
+  #nav{padding-left:6px!important;padding-right:6px!important}
+  #nav button,#nav a{font-size:12px!important;padding-left:7px!important;padding-right:7px!important}
+}
+
 </style>
 </head>
 <body>
@@ -673,7 +703,7 @@ using (
 </section>
 </div>
 
-<nav id="nav" class="hidden">
+<nav id="nav" class="bottom-nav" class="hidden">
 <button onclick="show('home')" id="nhome" class="active">⌂ Inicio</button>
 <button onclick="show('clients')" id="nclients">👥 Clientes</button>
 <button onclick="show('payments')" id="npayments">💳 Pagos</button>
