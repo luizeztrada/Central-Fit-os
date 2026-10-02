@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Central Fit OS">
-<title>Central Fit OS v1.7.1</title>
+<title>Central Fit OS v1.7.2</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 document.addEventListener('DOMContentLoaded',()=>{
   const pd=document.getElementById('payDate');
@@ -138,13 +138,13 @@ button,a,.nav-item{min-height:44px}
 
 </style>
 </head>
-<body data-build="1.7.1">
+<body data-build="1.7.2">
 
 <section id="gate">
 <div class="box">
 <div class="small muted">CENTRAL FIT</div>
 <h1>Central Fit <span class="brand">OS</span></h1>
-<p class="muted">v1.7.1 · Gestión de pagos</p>
+<p class="muted">v1.7.2 · Gestión de pagos</p>
 
 <div id="connectPanel">
 <div class="banner">
@@ -228,7 +228,7 @@ create index if not exists payments_client_id_idx on public.payments(client_id);
 
 <div id="app" class="app hidden">
 <header class="top">
-<div><div class="logo">CENTRAL <span>FIT</span> OS</div><div class="small muted">v1.7.1 · Gestión de pagos</div></div>
+<div><div class="logo">CENTRAL <span>FIT</span> OS</div><div class="small muted">v1.7.2 · Gestión de pagos</div></div>
 <div class="top-actions"><button class="primary" onclick="show('add')">+ Cliente</button><button class="ghost" onclick="logout()">Salir</button></div>
 </header>
 
@@ -949,12 +949,12 @@ async function loadCloudData(){
  if(!sb||!user)return;
  cloudState.textContent='Sync...';
  let [cr,pr,ar,mr,cor,er]=await Promise.all([
-   sb.from('clients').select('*').order('name'),
-   sb.from('payments').select('*').order('payment_date',{ascending:false}),
-   sb.from('attendance').select('*').order('attendance_date',{ascending:false}),
-   sb.from('membership_actions').select('*').order('created_at',{ascending:false}),
-   sb.from('collections').select('*'),
-   sb.from('expenses').select('*').order('expense_date',{ascending:false})
+   sb.from('clients').select('*').eq('owner_id',user.id).order('name'),
+   sb.from('payments').select('*').eq('owner_id',user.id).order('payment_date',{ascending:false}),
+   sb.from('attendance').select('*').eq('owner_id',user.id).order('attendance_date',{ascending:false}),
+   sb.from('membership_actions').select('*').eq('owner_id',user.id).order('created_at',{ascending:false}),
+   sb.from('collections').select('*').eq('owner_id',user.id),
+   sb.from('expenses').select('*').eq('owner_id',user.id).order('expense_date',{ascending:false})
  ]);
  if(cr.error||pr.error){
    cloudState.textContent='Error';
@@ -971,7 +971,7 @@ async function loadCloudData(){
  db.membershipActions=mr.error?[]:(mr.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),type:x.action_type,detail:x.detail||'',date:x.action_date}));
  db.collections=cor.error?[]:(cor.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),status:x.status||'pendiente',lastContact:x.last_contact_date||'',promiseDate:x.promise_date||'',notes:x.notes||''}));
  db.expenses=er.error?[]:(er.data||[]).map(x=>({id:Number(x.id),category:x.category,amount:Number(x.amount||0),method:x.method||'',date:x.expense_date,notes:x.notes||''}));
- cloudState.textContent='OK';
+ cloudState.textContent=`OK · ${db.clients.length} clientes · ${db.payments.length} pagos`;
  refresh();
  if(currentProfileClientId)renderClientProfile();
 }
@@ -2238,6 +2238,21 @@ async function deletePaymentFromEditor(){
   closePaymentEditor();
   await loadCloudData();
   alert('Pago eliminado ✅');
+}
+
+
+function refresh(){
+  try{renderDash();}catch(e){console.error('renderDash',e);}
+  try{renderClients();}catch(e){console.error('renderClients',e);}
+  try{fillPayClients();}catch(e){console.error('fillPayClients',e);}
+  try{renderPayments();}catch(e){console.error('renderPayments',e);}
+  try{fillAttendanceClients();}catch(e){console.error('fillAttendanceClients',e);}
+  try{renderAttendance();}catch(e){console.error('renderAttendance',e);}
+  try{fillMembershipClients();}catch(e){console.error('fillMembershipClients',e);}
+  try{renderMembershipPanel();}catch(e){console.error('renderMembershipPanel',e);}
+  try{renderCollections();}catch(e){console.error('renderCollections',e);}
+  try{renderCash();}catch(e){console.error('renderCash',e);}
+  try{renderReports();}catch(e){console.error('renderReports',e);}
 }
 
 function renderDash(){
