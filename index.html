@@ -10,8 +10,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Central Fit OS">
-<title>Central Fit OS v1.6.2</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>Central Fit OS v1.7</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+document.addEventListener('DOMContentLoaded',()=>{
+  const pd=document.getElementById('payDate');
+  if(pd && !pd.value)pd.value=localISODate();
+});
+
+</script>
 <style>
 :root{--bg:#0d0f10;--card:#171a1c;--muted:#9ca3a8;--text:#f5f5f5;--accent:#b8ff35;--danger:#ff6262;--warn:#ffc857;--orange:#ff9f43}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -108,6 +114,27 @@ button,a,.nav-item{min-height:44px}
   #nav{padding-left:6px!important;padding-right:6px!important}
   #nav button,#nav a{font-size:12px!important;padding-left:7px!important;padding-right:7px!important}
 }
+
+
+.pay-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.pay-chip{font-size:12px;padding:5px 8px;border-radius:999px;background:#22272b;color:#b8c0c7}
+.pay-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.modal-backdrop{
+  position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);
+  display:flex;align-items:flex-end;justify-content:center;padding:14px;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px)
+}
+.modal-backdrop.hidden{display:none}
+.modal-sheet{
+  width:min(680px,100%);max-height:88dvh;overflow:auto;
+  background:#15191c;border:1px solid #343a40;border-radius:24px;padding:20px;
+  box-shadow:0 20px 70px rgba(0,0,0,.55)
+}
+.modal-sheet h3{margin-top:0}
+.checkrow{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+.checkrow input{width:22px;height:22px;flex:0 0 auto}
+.sql-box{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  background:#0d1012;border:1px solid #343a40;border-radius:14px;padding:12px;font-size:13px}
 
 </style>
 </head>
@@ -244,7 +271,8 @@ create index if not exists payments_client_id_idx on public.payments(client_id);
 <h2>Registrar pago</h2>
 <div class="card"><label>Cliente</label><select id="payClient" onchange="setSuggestedRenewalStart()"></select><div class="formgrid">
 <div><label>Monto</label><input id="payAmount" type="number" value="600"></div>
-<div><label>Método</label><select id="payMethod"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select></div>
+<div><label>Método</label><select id="payMethod"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Registro</option></select></div>
+<div class="full"><label>Fecha del pago</label><input id="payDate" type="date"><div class="small muted">Esta fecha determina en qué mes aparece el ingreso en Caja y Reportes.</div></div>
 <div class="full"><label>La nueva membresía comienza el</label><input id="payStartDate" type="date"><div class="datequick"><button type="button" class="ghost" onclick="setRenewalStartToday()">Hoy</button><button type="button" class="ghost" onclick="setRenewalStartAfterExpiry()">Después del vencimiento actual</button></div><div id="renewalPreview" class="small muted">El vencimiento se calculará desde esta fecha.</div></div>
 </div><button class="primary" onclick="addPayment()">Registrar pago y renovar</button></div>
 <div class="card"><b>Historial reciente</b><div id="paymentList"></div></div>
@@ -700,7 +728,46 @@ using (
 );</div>
 </div>
 
+
+<div class="card">
+  <b>Activar vigencia por pago</b>
+  <p class="muted">Ejecuta este SQL una sola vez en Supabase → SQL Editor. Permite guardar por separado la fecha del pago y la vigencia que cubre.</p>
+  <div class="sql-box">alter table public.payments
+add column if not exists coverage_start_date date,
+add column if not exists coverage_end_date date;</div>
+</div>
 </section>
+</div>
+
+
+<div id="paymentEditModal" class="modal-backdrop hidden" onclick="closePaymentEditor(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="row">
+      <h3>Editar pago</h3>
+      <button class="ghost" onclick="closePaymentEditor()">Cerrar</button>
+    </div>
+    <input id="editPaymentId" type="hidden">
+    <div class="formgrid">
+      <div class="full"><label>Cliente</label><input id="editPaymentClient" disabled></div>
+      <div><label>Monto</label><input id="editPaymentAmount" type="number"></div>
+      <div><label>Método</label>
+        <select id="editPaymentMethod">
+          <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Registro</option><option>Pareja</option>
+        </select>
+      </div>
+      <div class="full"><label>Fecha del pago</label><input id="editPaymentDate" type="date"><div class="small muted">Define el mes contable del ingreso.</div></div>
+      <div><label>Inicio de vigencia</label><input id="editCoverageStart" type="date" onchange="previewEditCoverage()"></div>
+      <div><label>Fin de vigencia</label><input id="editCoverageEnd" type="date"></div>
+    </div>
+    <label class="checkrow">
+      <input id="editUpdateExpiry" type="checkbox">
+      <span>Actualizar también el vencimiento actual del cliente con la fecha de fin de vigencia.</span>
+    </label>
+    <div class="actions">
+      <button class="primary" onclick="savePaymentEdit()">Guardar cambios</button>
+      <button class="danger" onclick="deletePaymentFromEditor()">Eliminar pago</button>
+    </div>
+  </div>
 </div>
 
 <nav id="nav" class="bottom-nav" class="hidden">
@@ -899,7 +966,7 @@ async function loadCloudData(){
    start:c.start_date,expires:c.expires,notes:c.notes||'',discount:Number(c.discount||0),
    frozenUntil:c.frozen_until||'',linkedClientId:c.linked_client_id?Number(c.linked_client_id):null,photoPath:c.photo_path||''
  }));
- db.payments=(pr.data||[]).map(p=>({id:Number(p.id),client:Number(p.client_id),amount:Number(p.amount||0),method:p.method||'',date:p.payment_date}));
+ db.payments=(pr.data||[]).map(p=>({id:Number(p.id),client:Number(p.client_id),amount:Number(p.amount||0),method:p.method||'',date:p.payment_date,coverageStart:p.coverage_start_date||'',coverageEnd:p.coverage_end_date||''}));
  db.attendance=ar.error?[]:(ar.data||[]).map(a=>({id:Number(a.id),client:Number(a.client_id),date:a.attendance_date,time:a.class_time}));
  db.membershipActions=mr.error?[]:(mr.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),type:x.action_type,detail:x.detail||'',date:x.action_date}));
  db.collections=cor.error?[]:(cor.data||[]).map(x=>({id:Number(x.id),client:Number(x.client_id),status:x.status||'pendiente',lastContact:x.last_contact_date||'',promiseDate:x.promise_date||'',notes:x.notes||''}));
@@ -1003,6 +1070,7 @@ function updateRenewalPreview(){
 async function addPayment(){
  let c=db.clients.find(x=>x.id==document.getElementById('payClient').value);
  if(!c)return alert('Agrega un cliente primero.');
+ const paymentDate=document.getElementById('payDate').value||localISODate();
  const startDate=document.getElementById('payStartDate').value||localISODate();
  const newExp=addDaysISO(startDate,planDays(c.plan)-1);
  const amount=Number(document.getElementById('payAmount').value||0);
@@ -1011,14 +1079,24 @@ async function addPayment(){
  const {error:ue}=await sb.from('clients').update({expires:newExp}).eq('id',c.id);
  if(ue)return alert('No se pudo actualizar vencimiento: '+ue.message);
 
- const {error:pe}=await sb.from('payments').insert({
-   id:Date.now(),owner_id:user.id,client_id:c.id,amount,method,payment_date:localISODate()
- });
+ const payload={
+   id:Date.now(),owner_id:user.id,client_id:c.id,amount,method,payment_date:paymentDate,
+   coverage_start_date:startDate,coverage_end_date:newExp
+ };
+ let {error:pe}=await sb.from('payments').insert(payload);
+
+ // Compatibilidad temporal si todavía no se ejecutó el SQL nuevo.
+ if(pe && /coverage_start_date|coverage_end_date|schema cache/i.test(pe.message||'')){
+   const fallback={id:payload.id,owner_id:user.id,client_id:c.id,amount,method,payment_date:paymentDate};
+   const retry=await sb.from('payments').insert(fallback);
+   pe=retry.error;
+   if(!pe)alert('Pago guardado. Para guardar también las fechas de vigencia por pago, ejecuta el SQL de Ajustes una sola vez.');
+ }
  if(pe)return alert('No se pudo registrar pago: '+pe.message);
 
- try{await logMembershipAction(c.id,'Renovación',`Vigencia ${startDate} a ${newExp} · pago $${amount} · ${method}`);}catch(e){}
+ try{await logMembershipAction(c.id,'Renovación',`Pago ${paymentDate} · vigencia ${startDate} a ${newExp} · $${amount} · ${method}`);}catch(e){}
  await loadCloudData();
- alert(`Pago registrado ✅\nNueva vigencia: ${fmt(startDate)} al ${fmt(newExp)}`);
+ alert(`Pago registrado ✅\nFecha de pago: ${fmt(paymentDate)}\nVigencia: ${fmt(startDate)} al ${fmt(newExp)}`);
 }
 
 
@@ -1131,7 +1209,11 @@ function renderClientProfile(){
 </div>
 
 <h3>Historial de pagos</h3>
- ${pays.map(p=>`<div class="card"><div class="row"><div><b>${fmt(p.date)}</b><div class="muted">${p.method}</div></div><b>$${p.amount.toLocaleString('es-MX')}</b></div></div>`).join('')||'<div class="card muted">Sin pagos.</div>'}
+ ${pays.map(p=>`<div class="card">
+   <div class="row"><div><b>${fmt(p.date)}</b><div class="muted">${p.method}</div></div><b>$${p.amount.toLocaleString('es-MX')}</b></div>
+   ${p.coverageStart?`<div class="pay-meta"><span class="pay-chip">Vigencia: ${fmt(p.coverageStart)} → ${fmt(p.coverageEnd)}</span></div>`:''}
+   <div class="pay-actions"><button class="ghost" onclick="openPaymentEditor(${p.id})">Editar</button></div>
+ </div>`).join('')||'<div class="card muted">Sin pagos.</div>'}
 
  <h3>Historial de asistencia</h3>
  ${attendance.map(a=>`<div class="card"><div class="row"><b>${fmt(a.date)}</b><span class="muted">${a.time}</span></div></div>`).join('')||'<div class="card muted">Sin asistencias.</div>'}
@@ -2074,6 +2156,90 @@ function renderDuplicateReview(){
   `).join('');
 }
 
+
+function openPaymentEditor(paymentId){
+  const p=db.payments.find(x=>x.id===paymentId);
+  if(!p)return alert('No se encontró el pago.');
+  const c=db.clients.find(x=>x.id===p.client);
+
+  document.getElementById('editPaymentId').value=p.id;
+  document.getElementById('editPaymentClient').value=c?.name||'Cliente eliminado';
+  document.getElementById('editPaymentAmount').value=p.amount;
+  const method=document.getElementById('editPaymentMethod');
+  if(![...method.options].some(o=>o.value===p.method)){
+    const o=document.createElement('option');o.value=p.method;o.textContent=p.method;method.appendChild(o);
+  }
+  method.value=p.method||'Efectivo';
+  document.getElementById('editPaymentDate').value=p.date||localISODate();
+  document.getElementById('editCoverageStart').value=p.coverageStart||'';
+  document.getElementById('editCoverageEnd').value=p.coverageEnd||'';
+  document.getElementById('editUpdateExpiry').checked=false;
+  document.getElementById('paymentEditModal').classList.remove('hidden');
+}
+function closePaymentEditor(e){
+  if(e && e.target!==e.currentTarget)return;
+  document.getElementById('paymentEditModal')?.classList.add('hidden');
+}
+function previewEditCoverage(){
+  const id=Number(document.getElementById('editPaymentId').value);
+  const p=db.payments.find(x=>x.id===id);
+  const c=db.clients.find(x=>x.id===p?.client);
+  const start=document.getElementById('editCoverageStart').value;
+  if(c&&start)document.getElementById('editCoverageEnd').value=addDaysISO(start,planDays(c.plan)-1);
+}
+async function savePaymentEdit(){
+  const id=Number(document.getElementById('editPaymentId').value);
+  const p=db.payments.find(x=>x.id===id);
+  if(!p)return alert('No se encontró el pago.');
+
+  const amount=Number(document.getElementById('editPaymentAmount').value||0);
+  const method=document.getElementById('editPaymentMethod').value;
+  const paymentDate=document.getElementById('editPaymentDate').value;
+  const coverageStart=document.getElementById('editCoverageStart').value||null;
+  const coverageEnd=document.getElementById('editCoverageEnd').value||null;
+
+  if(!paymentDate)return alert('Selecciona la fecha del pago.');
+
+  let payload={
+    amount,method,payment_date:paymentDate,
+    coverage_start_date:coverageStart,coverage_end_date:coverageEnd
+  };
+  let {error}=await sb.from('payments').update(payload).eq('id',id);
+
+  if(error && /coverage_start_date|coverage_end_date|schema cache/i.test(error.message||'')){
+    const retry=await sb.from('payments').update({amount,method,payment_date:paymentDate}).eq('id',id);
+    error=retry.error;
+    if(!error)alert('Pago actualizado. Ejecuta el SQL de Ajustes para poder guardar también la vigencia por pago.');
+  }
+  if(error)return alert('No se pudo editar el pago: '+error.message);
+
+  if(document.getElementById('editUpdateExpiry').checked && coverageEnd){
+    const ue=await sb.from('clients').update({expires:coverageEnd}).eq('id',p.client);
+    if(ue.error)return alert('El pago se actualizó, pero no se pudo cambiar el vencimiento del cliente: '+ue.error.message);
+  }
+
+  try{await logMembershipAction(p.client,'Edición de pago',`Pago ${id} corregido: ${paymentDate} · $${amount} · ${method}`);}catch(e){}
+  closePaymentEditor();
+  await loadCloudData();
+  alert('Pago actualizado ✅');
+}
+async function deletePaymentFromEditor(){
+  const id=Number(document.getElementById('editPaymentId').value);
+  const p=db.payments.find(x=>x.id===id);
+  if(!p)return;
+  const c=db.clients.find(x=>x.id===p.client);
+  if(!confirm(`¿Eliminar este pago de ${c?.name||'cliente'} por $${p.amount.toLocaleString('es-MX')}?\\n\\nSe quitará de Caja y Reportes. Esta acción no renueva ni modifica automáticamente la vigencia del cliente.`))return;
+  if(!confirm('Última confirmación: ¿eliminar definitivamente este pago?'))return;
+
+  const {error}=await sb.from('payments').delete().eq('id',id);
+  if(error)return alert('No se pudo eliminar el pago: '+error.message);
+
+  try{await logMembershipAction(p.client,'Pago eliminado',`Pago ${id} · ${p.date} · $${p.amount}`);}catch(e){}
+  closePaymentEditor();
+  await loadCloudData();
+  alert('Pago eliminado ✅');
+}
+
 function renderDash(){
  let month=new Date().toISOString().slice(0,7),pays=db.payments.filter(p=>p.date.startsWith(month));
  active.textContent=db.clients.filter(c=>status(c)==='active').length;expired.textContent=db.clients.filter(c=>status(c)==='expired').length;soon.textContent=db.clients.filter(c=>['soon','urgent'].includes(status(c))).length;income.textContent='$'+pays.reduce((s,p)=>s+p.amount,0).toLocaleString('es-MX');
@@ -2138,16 +2304,18 @@ function renderClients(){
  hydratePhotoImages(box);
 }
 function fillPayClients(){document.getElementById('payClient').innerHTML=db.clients.map(c=>`<option value="${c.id}">${c.name} — vence ${fmt(c.expires)}</option>`).join('')||'<option>Sin clientes</option>'}
-function renderPayments(){paymentList.innerHTML=db.payments.slice(0,40).map(p=>{let c=db.clients.find(x=>x.id==p.client);return `<div class="card"><div class="row"><b>${c?.name||'Cliente eliminado'}</b><b>$${p.amount}</b></div><div class="muted">${fmt(p.date)} · ${p.method}</div></div>`}).join('')||'<p class="muted">Sin pagos todavía.</p>'}
-function refresh(){renderDash();renderClients();renderPayments();fillPayClients();fillAttendanceClients();renderAttendance();fillMembershipClients();renderMembershipPanel();renderCollections();renderCash();renderReports();renderSecurity();}
-function showMembership(id){show('memberships');document.getElementById('memClient').value=id;fillMembershipClients();document.getElementById('memClient').value=id;renderMembershipPanel();}
-function quickPay(id){show('payments');document.getElementById('payClient').value=id;let c=db.clients.find(x=>x.id===id);if(c)document.getElementById('payAmount').value=Math.max(0,c.price-(c.discount||0));setSuggestedRenewalStart()}
-function wa(id){
- let c=db.clients.find(x=>x.id===id);
- let digits=(c.phone||'').replace(/\D/g,'');
- if(digits.length===10) digits='52'+digits;
- let msg=`Hola ${c.name} 👋 Te recordamos que tu membresía de Central Fit vence el ${fmt(c.expires)}. ¡Te esperamos para seguir entrenando juntos! 💪`;
- location.href='https://wa.me/'+digits+'?text='+encodeURIComponent(msg)
+function renderPayments(){
+ paymentList.innerHTML=db.payments.slice(0,60).map(p=>{
+   let c=db.clients.find(x=>x.id==p.client);
+   return `<div class="card">
+     <div class="row"><b>${c?.name||'Cliente eliminado'}</b><b>$${p.amount.toLocaleString('es-MX')}</b></div>
+     <div class="muted">Pago: ${fmt(p.date)} · ${p.method}</div>
+     <div class="pay-meta">
+       ${p.coverageStart?`<span class="pay-chip">Vigencia: ${fmt(p.coverageStart)} → ${fmt(p.coverageEnd)}</span>`:''}
+     </div>
+     <div class="pay-actions"><button class="ghost" onclick="openPaymentEditor(${p.id})">Editar pago</button></div>
+   </div>`;
+ }).join('')||'<p class="muted">Sin pagos todavía.</p>';
 }
 
 (async()=>{
