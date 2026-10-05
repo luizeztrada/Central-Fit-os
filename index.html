@@ -10,14 +10,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Central Fit OS">
-<title>Central Fit OS v1.7.2</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-document.addEventListener('DOMContentLoaded',()=>{
-  const pd=document.getElementById('payDate');
-  if(pd && !pd.value)pd.value=localISODate();
-});
-
-</script>
+<title>Central Fit OS v1.7.3</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0d0f10;--card:#171a1c;--muted:#9ca3a8;--text:#f5f5f5;--accent:#b8ff35;--danger:#ff6262;--warn:#ffc857;--orange:#ff9f43}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -138,13 +132,13 @@ button,a,.nav-item{min-height:44px}
 
 </style>
 </head>
-<body data-build="1.7.2">
+<body data-build="1.7.3">
 
 <section id="gate">
 <div class="box">
 <div class="small muted">CENTRAL FIT</div>
 <h1>Central Fit <span class="brand">OS</span></h1>
-<p class="muted">v1.7.2 · Gestión de pagos</p>
+<p class="muted">v1.7.3 · Gestión de pagos</p>
 
 <div id="connectPanel">
 <div class="banner">
@@ -228,7 +222,7 @@ create index if not exists payments_client_id_idx on public.payments(client_id);
 
 <div id="app" class="app hidden">
 <header class="top">
-<div><div class="logo">CENTRAL <span>FIT</span> OS</div><div class="small muted">v1.7.2 · Gestión de pagos</div></div>
+<div><div class="logo">CENTRAL <span>FIT</span> OS</div><div class="small muted">v1.7.3 · Gestión de pagos</div></div>
 <div class="top-actions"><button class="primary" onclick="show('add')">+ Cliente</button><button class="ghost" onclick="logout()">Salir</button></div>
 </header>
 
@@ -894,8 +888,47 @@ async function boot(){
 }
 function returnToGate(){app.classList.add('hidden');nav.classList.add('hidden');gate.classList.remove('hidden');testConnection()}
 async function logout(){if(sb)await sb.auth.signOut();user=null;app.classList.add('hidden');nav.classList.add('hidden');gate.classList.remove('hidden');setTest('tAuth','soon','Sin sesión')}
+
+function quickPay(id){
+  const c=db.clients.find(x=>x.id===Number(id));
+  if(!c){
+    alert('No se encontró el cliente.');
+    return;
+  }
+
+  show('payments');
+
+  const payClient=document.getElementById('payClient');
+  const payAmount=document.getElementById('payAmount');
+  const payDate=document.getElementById('payDate');
+  const payStartDate=document.getElementById('payStartDate');
+
+  if(payClient)payClient.value=String(c.id);
+  if(payAmount)payAmount.value=Math.max(0, Number(c.price||0)-Number(c.discount||0));
+  if(payDate && !payDate.value)payDate.value=localISODate();
+
+  // Por defecto, si ya venció inicia hoy; si sigue activo, inicia al día siguiente de su vencimiento.
+  let suggested=localISODate();
+  if(c.expires){
+    const today=localISODate();
+    if(c.expires>=today)suggested=addDaysISO(c.expires,1);
+  }
+  if(payStartDate)payStartDate.value=suggested;
+
+  try{setSuggestedRenewalStart();}catch(e){console.error(e);}
+  setTimeout(()=>{
+    const h=document.querySelector('#payments h2');
+    if(h)h.scrollIntoView({behavior:'smooth',block:'start'});
+  },50);
+}
+
 function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));let n=document.getElementById('n'+id);if(n)n.classList.add('active');if(id==='add')document.getElementById('start').value=localISODate();
- if(id==='payments'){setSuggestedRenewalStart();}
+ if(id==='payments'){
+   const pd=document.getElementById('payDate');
+   if(pd && !pd.value)pd.value=localISODate();
+   fillPayClients();
+   setSuggestedRenewalStart();
+ }
  if(id==='attendance'){
    const el=document.getElementById('attDate');
    if(el && !el.value) el.value=localISODate();
@@ -2345,6 +2378,12 @@ function renderPayments(){
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const pd=document.getElementById('payDate');
+  if(pd && !pd.value)pd.value=localISODate();
+});
+
 </script>
 
 <div id="recoveryOverlay" class="recovery-overlay hidden">
